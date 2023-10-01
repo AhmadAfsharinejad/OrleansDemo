@@ -1,35 +1,25 @@
 using Orleans.Providers;
 using StreamHelloWorld.Domains;
+using StreamHelloWorld;
 
-var builder = WebApplication.CreateBuilder(args);
+var hostBuilder = new HostBuilder()
+    .UseOrleans(siloBuilder =>
+    {
+        siloBuilder.UseLocalhostClustering();
+        siloBuilder.ConfigureLogging(logging =>
+        {
+            logging.AddConsole();
+            logging.SetMinimumLevel(LogLevel.Information);
+        });
+        siloBuilder.UseLocalhostClustering();
+        siloBuilder.AddMemoryGrainStorage(Consts.PubSubStore);
+        siloBuilder.AddMemoryStreams<DefaultMemoryMessageBodySerializer>(Consts.StreamProvider);
+    });
 
-// Add services to the container.
+hostBuilder.ConfigureServices(services => services.AddSingleton<IHostedService, StartingHost>());
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Host.UseOrleans(siloBuilder =>
-{
-    siloBuilder.UseLocalhostClustering();
-    siloBuilder.AddMemoryStreams<DefaultMemoryMessageBodySerializer>(Consts.StreamProvider);
-    siloBuilder.AddMemoryGrainStorage("PubSubStore");
-});
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-//app.UseHttpsRedirection();
-//app.UseAuthorization();
-app.MapControllers();
-
-await app.RunAsync();
-
-int i =0;
+var host = hostBuilder.Build();
+await host.StartAsync();
+Console.WriteLine("Press enter to stop the Silo...");
+Console.ReadLine();
+await host.StopAsync();

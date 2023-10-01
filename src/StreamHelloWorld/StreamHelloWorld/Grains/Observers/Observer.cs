@@ -1,6 +1,6 @@
 ﻿using Orleans.Streams;
 
-namespace StreamHelloWorld.Grains;
+namespace StreamHelloWorld.Grains.Observers;
 
 
 class Observer : IAsyncObserver<int>
@@ -19,7 +19,7 @@ class Observer : IAsyncObserver<int>
 
     public Task OnNextAsync(int item, StreamSequenceToken? token = null)
     {
-        Console.WriteLine(item);
+        Console.WriteLine($"Observer: {item}");
         return Task.CompletedTask;
     }
 }
