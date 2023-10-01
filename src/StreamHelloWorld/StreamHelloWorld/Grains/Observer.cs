@@ -19,7 +19,7 @@ class Observer : IAsyncObserver<int>
 
     public Task OnNextAsync(int item, StreamSequenceToken? token = null)
     {
-        Console.WriteLine("OnNextAsync: item: {Item}, token = {Token}", item, token);
+        Console.WriteLine(item);
         return Task.CompletedTask;
     }
 }

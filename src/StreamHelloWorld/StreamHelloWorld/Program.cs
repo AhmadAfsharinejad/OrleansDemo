@@ -1,51 +1,35 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.VisualBasic;
 using Orleans.Providers;
-using Orleans.Runtime;
-using Orleans.Streams;
-using StreamHelloWorld.Grains.Interfaces;
+using StreamHelloWorld.Domains;
 
-Console.WriteLine("Hello, World!");
+var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
 
-var serviceCollection = new ServiceCollection();
-serviceCollection.AddOrleans(siloBuilder =>
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Host.UseOrleans(siloBuilder =>
 {
-    siloBuilder
-        .AddMemoryStreams<DefaultMemoryMessageBodySerializer>("StreamProvider")
-        .AddMemoryGrainStorage("PubSubStore");
+    siloBuilder.UseLocalhostClustering();
+    siloBuilder.AddMemoryStreams<DefaultMemoryMessageBodySerializer>(Consts.StreamProvider);
+    siloBuilder.AddMemoryGrainStorage("PubSubStore");
 });
-// serviceCollection.AddOrleansClient( clientBuilder =>
-// {
-//     clientBuilder
-//         .AddMemoryStreams<DefaultMemoryMessageBodySerializer>("StreamProvider");
-// });
 
+var app = builder.Build();
 
-var provider = serviceCollection.BuildServiceProvider();
-
-
-var client = provider.GetRequiredService<IGrainFactory>();
-
-// Use the connected client to ask a grain to start producing events
-var key = Guid.NewGuid();
-var producer = client.GetGrain<IProducerGrain>("my-producer");
-await producer.StartProducing("StreamNameSpace", key);
-
-// var streamId = StreamId.Create("StreamNameSpace", key);
-// var stream = client
-//     .GetStreamProvider("StreamNameSpace")
-//     .GetStream<int>(streamId);
-// await stream.SubscribeAsync(OnNextAsync);
-//
-// Console.ReadLine();
-
-
-static Task OnNextAsync(int item, StreamSequenceToken? token = null)
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
 {
-    Console.WriteLine("OnNextAsync: item: {0}, token = {1}", item, token);
-    return Task.CompletedTask;
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+//app.UseHttpsRedirection();
+//app.UseAuthorization();
+app.MapControllers();
+
+await app.RunAsync();
+
+int i =0;

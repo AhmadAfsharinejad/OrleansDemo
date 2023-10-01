@@ -1,6 +1,7 @@
 ﻿using StreamHelloWorld.Grains.Interfaces;
 using Orleans.Runtime;
 using Orleans.Streams;
+using StreamHelloWorld.Domains;
 
 namespace StreamHelloWorld.Grains;
 
@@ -10,11 +11,10 @@ public class ProducerGrain : Grain, IProducerGrain
     private IDisposable? _timer;
     private int _counter = 0;
 
-    public Task StartProducing(string ns, Guid key)
+    public Task StartProducing(Guid key)
     {
-        var guid = new Guid("some guid identifying the chat room");
-        var streamProvider = this.GetStreamProvider("StreamProvider");
-        var streamId = StreamId.Create("StreamNameSpace", guid);
+        var streamProvider = this.GetStreamProvider(Consts.StreamProvider);
+        var streamId = StreamId.Create(Consts.PubSubNamespace, key);
         _stream = streamProvider.GetStream<int>(streamId);
 
         var period = TimeSpan.FromSeconds(1);

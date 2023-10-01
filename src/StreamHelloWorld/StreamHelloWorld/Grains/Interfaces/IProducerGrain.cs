@@ -2,7 +2,7 @@
 
 public interface IProducerGrain : IGrainWithStringKey
 {
-    Task StartProducing(string ns, Guid key);
+    Task StartProducing(Guid key);
 
     Task StopProducing();
 }
