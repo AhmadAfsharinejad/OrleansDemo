@@ -16,7 +16,7 @@ var hostBuilder = new HostBuilder()
         siloBuilder.AddMemoryStreams<DefaultMemoryMessageBodySerializer>(Consts.StreamProvider);
     });
 
-hostBuilder.ConfigureServices(services => services.AddSingleton<IHostedService, StartingHost>());
+hostBuilder.ConfigureServices(services => services.AddHostedService<StartingHost>());
 
 var host = hostBuilder.Build();
 await host.StartAsync();
