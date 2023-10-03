@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaHelloWorld", "KafkaHelloWorld\KafkaHelloWorld.csproj", "{D57C93D1-6429-4BC2-8738-C076B22F84D4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D57C93D1-6429-4BC2-8738-C076B22F84D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D57C93D1-6429-4BC2-8738-C076B22F84D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D57C93D1-6429-4BC2-8738-C076B22F84D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D57C93D1-6429-4BC2-8738-C076B22F84D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87689BA8-3A95-4475-B0C9-60C828606D9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87689BA8-3A95-4475-B0C9-60C828606D9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87689BA8-3A95-4475-B0C9-60C828606D9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87689BA8-3A95-4475-B0C9-60C828606D9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CB04FC8-6A9A-48B5-82AC-B7537B66B9FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CB04FC8-6A9A-48B5-82AC-B7537B66B9FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CB04FC8-6A9A-48B5-82AC-B7537B66B9FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CB04FC8-6A9A-48B5-82AC-B7537B66B9FD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
