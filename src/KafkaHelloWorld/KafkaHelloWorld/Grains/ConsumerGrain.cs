@@ -8,7 +8,7 @@ namespace KafkaHelloWorld.Grains;
 [StorageProvider(ProviderName = "Default")]
 public class ConsumerGrain: Grain, IConsumerGrain
 {
-    public Task SayHello()
+    public Task Active()
     {
         return Task.CompletedTask;
     }
@@ -33,13 +33,7 @@ public class ConsumerGrain: Grain, IConsumerGrain
 
     private Task OnNextTestMessage(object message, StreamSequenceToken sequenceToken)
     {
-        Console.BackgroundColor = ConsoleColor.DarkYellow;
-        Console.WriteLine(message?.ToString());
+        Console.WriteLine($"Consume: {message?.ToString()}");
         return Task.CompletedTask;
-    }
-
-    public override Task OnDeactivateAsync(DeactivationReason reason, CancellationToken cancellationToken)
-    {
-        return base.OnDeactivateAsync(reason, cancellationToken);
     }
 }

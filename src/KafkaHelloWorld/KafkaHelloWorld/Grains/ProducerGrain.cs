@@ -12,9 +12,9 @@ public class ProducerGrain: Grain, IProducerGrain
     {
         var streamProvider = this.GetStreamProvider(Consts.StreamProvider);
         _stream = streamProvider.GetStream<object>(Consts.FirstTopic, "id1");
-        for (int i = 0; i < 1000000000; i++)
+        for (int i = 0; i < 10000; i++)
         {
-            await _stream.OnNextAsync(12345);
+            await _stream.OnNextAsync(i);
         }
     }
 }

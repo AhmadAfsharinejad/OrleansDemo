@@ -2,5 +2,5 @@
 
 public interface IConsumerGrain : IGrainWithStringKey
 {
-    Task SayHello();
+    Task Active();
 }

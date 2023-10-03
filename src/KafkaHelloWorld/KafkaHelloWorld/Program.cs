@@ -1,6 +1,5 @@
 using KafkaHelloWorld;
 using KafkaHelloWorld.Domains;
-using Orleans.Providers;
 using Orleans.Streams.Kafka.Config;
 
 var hostBuilder = new HostBuilder()
@@ -15,7 +14,7 @@ var hostBuilder = new HostBuilder()
                 options.BrokerList = new[] { "localhost:9092" };
                 options.ConsumerGroupId = "E2EGroup2";
                 options.ConsumeMode = ConsumeMode.LastCommittedMessage;
-                options.MessageTrackingEnabled = true;
+                options.MessageTrackingEnabled = false;
                 options.PollTimeout = TimeSpan.FromMinutes(1);
         
                 options
@@ -24,16 +23,6 @@ var hostBuilder = new HostBuilder()
             //.AddJson()
             .AddLoggingTracker()
             .Build();
-        
-        
-        // siloBuilder.UseLocalhostClustering();
-        // siloBuilder.ConfigureLogging(logging =>
-        // {
-        //     logging.AddConsole();
-        //     logging.SetMinimumLevel(LogLevel.Information);
-        // });
-        // siloBuilder.AddMemoryGrainStorage(Consts.PubSubStore);
-        // siloBuilder.AddMemoryStreams<DefaultMemoryMessageBodySerializer>(Consts.StreamProvider);
     });
 
 hostBuilder.ConfigureServices(services => 
