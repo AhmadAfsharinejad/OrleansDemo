@@ -1,11 +1,12 @@
 using KafkaHelloWorld;
 using KafkaHelloWorld.Domains;
+using KafkaHelloWorld.Serialization;
 using Orleans.Streams.Kafka.Config;
 
 var hostBuilder = new HostBuilder()
     .UseOrleans(siloBuilder =>
     {
-        siloBuilder.ConfigureLogging(logginBuilder => logginBuilder.AddConsole());
+        //siloBuilder.ConfigureLogging(logginBuilder => logginBuilder.AddConsole());
         siloBuilder.UseLocalhostClustering()
             .AddMemoryGrainStorageAsDefault()
             .AddMemoryGrainStorage(Consts.PubSubStore)
@@ -22,7 +23,8 @@ var hostBuilder = new HostBuilder()
                     //.AddTopic(Consts.InternalTopic);
                 .AddExternalTopic<object>(Consts.ExternalTopic);
             })
-            .AddJson()//Note need for external
+            //.AddJson()
+            .AddExternalDeserializer<ExternalStreamDeserializer>()
             .AddLoggingTracker()
             .Build();
     });
