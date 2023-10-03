@@ -11,8 +11,8 @@ public class ProducerGrain: Grain, IProducerGrain
     public async Task StartProducing()
     {
         var streamProvider = this.GetStreamProvider(Consts.StreamProvider);
-        _stream = streamProvider.GetStream<object>(Consts.FirstTopic, "id1");
-        for (int i = 0; i < 10000; i++)
+        _stream = streamProvider.GetStream<object>(Consts.InternalTopic, "id1");
+        for (int i = 0; i < 50; i++)
         {
             await _stream.OnNextAsync(i);
         }

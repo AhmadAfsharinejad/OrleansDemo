@@ -5,6 +5,7 @@ using Orleans.Streams.Kafka.Config;
 var hostBuilder = new HostBuilder()
     .UseOrleans(siloBuilder =>
     {
+        siloBuilder.ConfigureLogging(logginBuilder => logginBuilder.AddConsole());
         siloBuilder.UseLocalhostClustering()
             .AddMemoryGrainStorageAsDefault()
             .AddMemoryGrainStorage(Consts.PubSubStore)
@@ -12,15 +13,16 @@ var hostBuilder = new HostBuilder()
             .WithOptions(options =>
             {
                 options.BrokerList = new[] { "localhost:9092" };
-                options.ConsumerGroupId = "E2EGroup2";
-                options.ConsumeMode = ConsumeMode.LastCommittedMessage;
+                options.ConsumerGroupId = "E2EGroup7";
+                options.ConsumeMode = ConsumeMode.StreamStart;//Note: When internal change to StreamEnd
                 options.MessageTrackingEnabled = false;
-                options.PollTimeout = TimeSpan.FromMinutes(1);
-        
+                //options.PollTimeout = TimeSpan.FromSeconds(1);
+
                 options
-                    .AddTopic(Consts.FirstTopic);
+                    //.AddTopic(Consts.InternalTopic);
+                .AddExternalTopic<object>(Consts.ExternalTopic);
             })
-            //.AddJson()
+            .AddJson()//Note need for external
             .AddLoggingTracker()
             .Build();
     });

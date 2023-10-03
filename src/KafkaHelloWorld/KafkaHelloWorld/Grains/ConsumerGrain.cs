@@ -16,7 +16,7 @@ public class ConsumerGrain: Grain, IConsumerGrain
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
         var kafkaProvider = this.GetStreamProvider(Consts.StreamProvider);
-        var testStream = kafkaProvider.GetStream<object>(Consts.FirstTopic,"id1");
+        var testStream = kafkaProvider.GetStream<object>(Consts.InternalTopic,"id1");
 
         // To resume stream in case of stream deactivation
         var subscriptionHandles = await testStream.GetAllSubscriptionHandles();
@@ -33,7 +33,7 @@ public class ConsumerGrain: Grain, IConsumerGrain
 
     private Task OnNextTestMessage(object message, StreamSequenceToken sequenceToken)
     {
-        Console.WriteLine($"Consume: {message?.ToString()}");
+        Console.WriteLine($"Consume: {message}");
         return Task.CompletedTask;
     }
 }

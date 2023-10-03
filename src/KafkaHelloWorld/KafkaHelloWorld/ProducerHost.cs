@@ -14,10 +14,6 @@ public sealed class ProducerHost : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        //TODO 
-        // await Task.CompletedTask;
-        // return;
-
         _grain = _grainFactory.GetGrain<IProducerGrain>("id1");
         await _grain.StartProducing();
     }
