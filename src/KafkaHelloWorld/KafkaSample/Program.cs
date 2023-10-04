@@ -1,12 +1,16 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using System.Xml;
 using Confluent.Kafka;
 
 Console.WriteLine($"Starting {DateTime.Now}");
 
 //await Write();
-await Read();
+
+var t1 = Task.Run(async () => { await Read(); });
+// var t2 = Task.Run(async () => { await Read(); });
+// var t3 = Task.Run(async () => { await Read(); });
+
+await Task.WhenAll(t1);
 
 Console.WriteLine($"End {DateTime.Now}");
 Console.ReadLine();
@@ -48,14 +52,16 @@ async Task Read()
     var config = new ConsumerConfig
     {
         BootstrapServers = "localhost:9092",
-        GroupId = "g1",
+        GroupId = "g6",
         EnableAutoCommit = false,
         AutoOffsetReset = AutoOffsetReset.Earliest,
         EnablePartitionEof = true
     };
 
     using var consumer = new ConsumerBuilder<string, string>(config).Build();
-    consumer.Subscribe(new[] { "second-topic1" });
+    //consumer.Subscribe(new[] { "second-topic2" });
+    consumer.Assign(new TopicPartitionOffset("second-topic2", 0, Offset.Beginning));
+
 
     int count = 0;
     while (true)
