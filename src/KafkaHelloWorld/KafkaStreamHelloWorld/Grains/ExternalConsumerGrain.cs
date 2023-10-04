@@ -1,9 +1,9 @@
-﻿using KafkaHelloWorld.Domains;
-using KafkaHelloWorld.Grains.Interfaces;
-using KafkaHelloWorld.Grains.Observer;
+﻿using KafkaStreamHelloWorld.Domains;
+using KafkaStreamHelloWorld.Grains.Interfaces;
+using KafkaStreamHelloWorld.Grains.Observer;
 using Orleans.Streams.Core;
 
-namespace KafkaHelloWorld.Grains;
+namespace KafkaStreamHelloWorld.Grains;
 
 //Note: For every key in kafka create this class
 [ImplicitStreamSubscription(Consts.ExternalTopic)]

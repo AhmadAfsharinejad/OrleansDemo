@@ -1,7 +1,7 @@
-﻿using KafkaHelloWorld.Grains.Interfaces;
+﻿using KafkaStreamHelloWorld.Grains.Interfaces;
 using Orleans.Streams;
 
-namespace KafkaHelloWorld.Grains.Observer;
+namespace KafkaStreamHelloWorld.Grains.Observer;
 
 /// <summary>
 /// Class that will log streaming events

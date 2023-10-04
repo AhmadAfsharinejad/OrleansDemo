@@ -1,6 +1,6 @@
-﻿using KafkaHelloWorld.Grains.Interfaces;
+﻿using KafkaStreamHelloWorld.Grains.Interfaces;
 
-namespace KafkaHelloWorld;
+namespace KafkaStreamHelloWorld;
 
 public sealed class ConsumerHost : BackgroundService
 {

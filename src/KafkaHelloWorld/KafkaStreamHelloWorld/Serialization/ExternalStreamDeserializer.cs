@@ -2,7 +2,7 @@
 using Orleans.Streams.Utils;
 using Orleans.Streams.Utils.Serialization;
 
-namespace KafkaHelloWorld.Serialization;
+namespace KafkaStreamHelloWorld.Serialization;
 
 public class ExternalStreamDeserializer :  IExternalStreamDeserializer
 {

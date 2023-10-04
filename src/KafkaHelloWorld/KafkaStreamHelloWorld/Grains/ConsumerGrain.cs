@@ -1,9 +1,9 @@
-﻿using KafkaHelloWorld.Domains;
-using KafkaHelloWorld.Grains.Interfaces;
+﻿using KafkaStreamHelloWorld.Domains;
+using KafkaStreamHelloWorld.Grains.Interfaces;
 using Orleans.Providers;
 using Orleans.Streams;
 
-namespace KafkaHelloWorld.Grains;
+namespace KafkaStreamHelloWorld.Grains;
 
 [StorageProvider(ProviderName = "Default")]
 public class ConsumerGrain: Grain, IConsumerGrain

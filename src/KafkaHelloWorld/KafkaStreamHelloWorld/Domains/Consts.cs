@@ -1,4 +1,4 @@
-﻿namespace KafkaHelloWorld.Domains;
+﻿namespace KafkaStreamHelloWorld.Domains;
 
 public static class Consts
 {

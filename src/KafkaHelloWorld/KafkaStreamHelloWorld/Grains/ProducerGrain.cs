@@ -1,8 +1,8 @@
-﻿using KafkaHelloWorld.Domains;
-using KafkaHelloWorld.Grains.Interfaces;
+﻿using KafkaStreamHelloWorld.Domains;
+using KafkaStreamHelloWorld.Grains.Interfaces;
 using Orleans.Streams;
 
-namespace KafkaHelloWorld.Grains;
+namespace KafkaStreamHelloWorld.Grains;
 
 public class ProducerGrain: Grain, IProducerGrain
 {

@@ -1,4 +1,4 @@
-﻿namespace KafkaHelloWorld.Grains.Interfaces;
+﻿namespace KafkaStreamHelloWorld.Grains.Interfaces;
 
 public interface IProducerGrain : IGrainWithStringKey
 {

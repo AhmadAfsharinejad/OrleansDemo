@@ -1,6 +1,6 @@
-using KafkaHelloWorld;
-using KafkaHelloWorld.Domains;
-using KafkaHelloWorld.Serialization;
+using KafkaStreamHelloWorld;
+using KafkaStreamHelloWorld.Domains;
+using KafkaStreamHelloWorld.Serialization;
 using Orleans.Streams.Kafka.Config;
 
 var hostBuilder = new HostBuilder()

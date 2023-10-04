@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaHelloWorld", "KafkaHelloWorld\KafkaHelloWorld.csproj", "{D57C93D1-6429-4BC2-8738-C076B22F84D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaStreamHelloWorld", "KafkaStreamHelloWorld\KafkaStreamHelloWorld.csproj", "{D57C93D1-6429-4BC2-8738-C076B22F84D4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaSample", "KafkaSample\KafkaSample.csproj", "{A44EF0FE-4288-413B-8F12-7DE2B7641EF2}"
 EndProject
