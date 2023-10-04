@@ -5,6 +5,7 @@ using Orleans.Streams.Core;
 
 namespace KafkaHelloWorld.Grains;
 
+//Note: For every key in kafka create this class
 [ImplicitStreamSubscription(Consts.ExternalTopic)]
 internal sealed class ExternalConsumerGrain: Grain, IConsumerGrain, IStreamSubscriptionObserver
 {

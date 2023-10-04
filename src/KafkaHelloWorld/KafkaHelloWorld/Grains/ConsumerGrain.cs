@@ -16,6 +16,7 @@ public class ConsumerGrain: Grain, IConsumerGrain
     public override async Task OnActivateAsync(CancellationToken cancellationToken)
     {
         var kafkaProvider = this.GetStreamProvider(Consts.StreamProvider);
+        //Note: If work with external kafka, id must be message key in kafka
         var testStream = kafkaProvider.GetStream<object>(Consts.InternalTopic,"id1");
 
         // To resume stream in case of stream deactivation
