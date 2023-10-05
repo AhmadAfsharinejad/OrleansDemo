@@ -21,7 +21,7 @@ internal sealed class StartingHost : BackgroundService
         // var generator = _grainFactory.GetGrain<IRandomGeneratorGrain>(0);
         // generator.Compute();
 
-        Run();
+        await Run();
         
         Console.WriteLine($"Finished {DateTime.Now}");
     }
@@ -29,9 +29,19 @@ internal sealed class StartingHost : BackgroundService
     private async Task Run()
     {
         var grain = _grainFactory.GetGrain<IPassAwayGrain>(0);
+        var tasks = new List<Task>();
         for (int i = 0; i < 100000; i++)
         {
-           grain.Compute(i.AsImmutable());
+            var task = grain.Compute(i.AsImmutable());
+            tasks.Add(task);
+
+            // if (i % 1000 == 0)
+            // {
+            //     await Task.WhenAll(tasks);
+            //     tasks.Clear();
+            // }
         }
+
+        await Task.WhenAll(tasks);
     }
 }

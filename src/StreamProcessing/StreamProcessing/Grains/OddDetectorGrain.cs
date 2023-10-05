@@ -4,7 +4,7 @@ using StreamProcessing.Grains.Interfaces;
 namespace StreamProcessing.Grains;
 
 [StatelessWorker(5)]
-//[Reentrant]
+[Reentrant]
 public class OddDetectorGrain : Grain, IOddDetectorGrain
 {
     public override Task OnActivateAsync(CancellationToken cancellationToken)
@@ -13,10 +13,12 @@ public class OddDetectorGrain : Grain, IOddDetectorGrain
         return base.OnActivateAsync(cancellationToken);
     }
 
-    //[ReadOnly]
+    [ReadOnly]
     public async Task Compute(Immutable<int> index)
     {
-        await Task.Delay(TimeSpan.FromMilliseconds(5000)).ConfigureAwait(false);
+        var count = index.Value + 1;
+        await Task.CompletedTask;
+        //await Task.Delay(TimeSpan.FromMilliseconds(5000)).ConfigureAwait(false);
         return;
     }
 }
