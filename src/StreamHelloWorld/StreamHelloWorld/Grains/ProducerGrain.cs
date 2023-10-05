@@ -11,16 +11,21 @@ public class ProducerGrain : Grain, IProducerGrain
     private IDisposable? _timer;
     private int _counter = 0;
 
-    public Task StartProducing(Guid key)
+    public async Task StartProducing(Guid key)
     {
         var streamProvider = this.GetStreamProvider(Consts.StreamProvider);
         var streamId = StreamId.Create(Consts.PubSubNamespace, key);
         _stream = streamProvider.GetStream<int>(streamId);
 
-        var period = TimeSpan.FromSeconds(1);
-        _timer = RegisterTimer(TimerTick, null, period, period);
+        //var period = TimeSpan.FromSeconds(1);
+        //_timer = RegisterTimer(TimerTick, null, period, period);
 
-        return Task.CompletedTask;
+        for (int i = 0; i < 1000000; i++)
+        {
+            await _stream.OnNextAsync(i);
+        }
+
+        //return Task.CompletedTask;
     }
 
     private async Task TimerTick(object _)

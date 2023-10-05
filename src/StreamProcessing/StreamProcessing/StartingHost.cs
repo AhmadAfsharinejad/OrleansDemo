@@ -17,23 +17,45 @@ internal sealed class StartingHost : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         Console.WriteLine($"Start {DateTime.Now}");
-        
+
         // var generator = _grainFactory.GetGrain<IRandomGeneratorGrain>(0);
         // generator.Compute();
 
-        await Run();
-        
+        var t1 = Run();
+        //var t2 = Run();
+        //var t3 = Run();
+
+        await Task.WhenAll(t1);
+
         Console.WriteLine($"Finished {DateTime.Now}");
     }
 
     private async Task Run()
     {
         var grain = _grainFactory.GetGrain<IPassAwayGrain>(0);
-        var tasks = new List<Task>();
-        for (int i = 0; i < 100000; i++)
+
+        var batchCount = 10;
+        var items = new int[batchCount];
+        int index = 0;
+
+        for (int i = 1; i < 100000000; i++)
         {
-            var task = grain.Compute(i.AsImmutable());
-            tasks.Add(task);
+            items[index++]  = i;
+
+            if (index == batchCount)
+            {
+
+                try
+                {
+                    await grain.Compute(items.AsImmutable());
+                }
+                catch (Exception e)
+                {
+                    //Console.WriteLine(e);
+                }
+                items = new int[batchCount];
+                index = 0;
+            }
 
             // if (i % 1000 == 0)
             // {
@@ -41,7 +63,5 @@ internal sealed class StartingHost : BackgroundService
             //     tasks.Clear();
             // }
         }
-
-        await Task.WhenAll(tasks);
     }
 }

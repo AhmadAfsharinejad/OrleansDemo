@@ -14,9 +14,15 @@ public class OddDetectorGrain : Grain, IOddDetectorGrain
     }
 
     [ReadOnly]
-    public async Task Compute(Immutable<int> index)
+    //[OneWay]
+    public async Task Compute(Immutable<int[]> index)
     {
-        var count = index.Value + 1;
+        var last = index.Value.Last();
+        //Console.WriteLine(last);
+
+        if (last % 10000 == 0)
+            throw new Exception("Bad");
+
         await Task.CompletedTask;
         //await Task.Delay(TimeSpan.FromMilliseconds(5000)).ConfigureAwait(false);
         return;

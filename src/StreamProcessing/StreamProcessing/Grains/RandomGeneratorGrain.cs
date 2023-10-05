@@ -17,7 +17,7 @@ public class RandomGeneratorGrain : Grain, IRandomGeneratorGrain
 
         for (int i = 0; i < 10000; i++)
         {
-            await grain.Compute(i.AsImmutable());
+            //await grain.Compute(i.AsImmutable());
         }
     }
 }

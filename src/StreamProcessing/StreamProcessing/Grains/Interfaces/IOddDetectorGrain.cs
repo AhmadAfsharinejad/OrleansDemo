@@ -4,5 +4,8 @@ namespace StreamProcessing.Grains.Interfaces;
 
 public interface IOddDetectorGrain : IGrainWithIntegerKey
 {
-    Task Compute(Immutable<int> index);
+
+    [ReadOnly]
+    //[OneWay]
+    Task Compute(Immutable<int[]> index);
 }

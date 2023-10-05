@@ -6,11 +6,11 @@ var hostBuilder = new HostBuilder()
     .UseOrleans(siloBuilder =>
     {
         siloBuilder.UseLocalhostClustering();
-        siloBuilder.ConfigureLogging(logging =>
-        {
-            logging.AddConsole();
-            logging.SetMinimumLevel(LogLevel.Information);
-        });
+        // siloBuilder.ConfigureLogging(logging =>
+        // {
+        //     logging.AddConsole();
+        //     logging.SetMinimumLevel(LogLevel.Information);
+        // });
         siloBuilder.UseLocalhostClustering();
         siloBuilder.AddMemoryGrainStorage(Consts.PubSubStore);
         siloBuilder.AddMemoryStreams<DefaultMemoryMessageBodySerializer>(Consts.StreamProvider);
