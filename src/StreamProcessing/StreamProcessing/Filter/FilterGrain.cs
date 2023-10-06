@@ -21,7 +21,6 @@ internal sealed class FilterGrain : PluginGrain<FilterConfig>, IFilterGrain
     }
     
     [ReadOnly]
-    //[OneWay]
     public async Task Compute(Guid scenarioId, Guid pluginId, 
         Immutable<PluginRecords>? pluginRecords, 
         GrainCancellationToken cancellationToken)

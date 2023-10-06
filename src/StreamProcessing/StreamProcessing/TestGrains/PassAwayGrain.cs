@@ -17,7 +17,6 @@ public class PassAwayGrain : Grain, IPassAwayGrain
     }
     
     [ReadOnly]
-    //[OneWay]
     public async Task Compute(Immutable<int[]> index)
     {
         await grain.Compute(index);

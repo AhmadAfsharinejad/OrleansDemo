@@ -24,7 +24,6 @@ internal sealed class DummyOutputGrain : PluginGrain<DummyOutputConfig>, IDummyO
     }
 
     [ReadOnly]
-    //[OneWay]
     public async Task Compute(Guid scenarioId, Guid pluginId,
         Immutable<PluginRecords>? pluginRecords,
         GrainCancellationToken cancellationToken)

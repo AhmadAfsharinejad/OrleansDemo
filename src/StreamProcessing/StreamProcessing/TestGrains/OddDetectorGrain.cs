@@ -14,7 +14,6 @@ public class OddDetectorGrain : Grain, IOddDetectorGrain
     }
 
     [ReadOnly]
-    //[OneWay]
     public async Task Compute(Immutable<int[]> index)
     {
         // var last = index.Value.Last();
