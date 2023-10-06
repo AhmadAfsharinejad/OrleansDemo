@@ -1,7 +1,7 @@
 ﻿using Orleans.Concurrency;
-using StreamProcessing.Grains.Interfaces;
+using StreamProcessing.TestGrains.Interfaces;
 
-namespace StreamProcessing.Grains;
+namespace StreamProcessing.TestGrains;
 
 [StatelessWorker(5)]
 [Reentrant]

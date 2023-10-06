@@ -1,6 +1,6 @@
 ﻿using Orleans.Concurrency;
 
-namespace StreamProcessing.Grains.Interfaces;
+namespace StreamProcessing.TestGrains.Interfaces;
 
 public interface IOddDetectorGrain : IGrainWithIntegerKey
 {

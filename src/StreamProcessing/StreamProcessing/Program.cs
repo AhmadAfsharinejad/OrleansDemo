@@ -1,13 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using StreamProcessing;
+using StreamProcessing.Di;
 
 var hostBuilder = new HostBuilder()
     .UseOrleans(siloBuilder =>
     {
         siloBuilder.UseLocalhostClustering();
         siloBuilder.AddMemoryGrainStorage("Storage");
+        siloBuilder.Services.AddStreamServices();
         //siloBuilder.ConfigureLogging(loggingBuilder => loggingBuilder.AddConsole());
     });
 

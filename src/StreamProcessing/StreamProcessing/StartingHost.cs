@@ -1,7 +1,6 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Orleans.Concurrency;
-using StreamProcessing.Grains.Interfaces;
+using StreamProcessing.TestGrains.Interfaces;
 
 namespace StreamProcessing;
 
@@ -18,19 +17,29 @@ internal sealed class StartingHost : BackgroundService
     {
         Console.WriteLine($"Start {DateTime.Now}");
 
-        // var generator = _grainFactory.GetGrain<IRandomGeneratorGrain>(0);
-        // generator.Compute();
-
-        var t1 = Run();
-        //var t2 = Run();
-        //var t3 = Run();
-
-        await Task.WhenAll(t1);
+        //await RandomWithGrain();
+        //await Random();
+        await RunScenario();
 
         Console.WriteLine($"Finished {DateTime.Now}");
     }
 
-    private async Task Run()
+    private async Task RandomWithGrain()
+    {
+        var generator = _grainFactory.GetGrain<IRandomGeneratorGrain>(0);
+        await generator.Compute();
+    }
+
+    private async Task Random()
+    {
+        var t1 = RunPassAwayGrain();
+        //var t2 = Run();
+        //var t3 = Run();
+
+        await Task.WhenAll(t1);
+    }
+
+    private async Task RunPassAwayGrain()
     {
         var grain = _grainFactory.GetGrain<IPassAwayGrain>(0);
 
@@ -63,5 +72,10 @@ internal sealed class StartingHost : BackgroundService
             //     tasks.Clear();
             // }
         }
+    }
+
+    private async Task RunScenario()
+    {
+        
     }
 }
