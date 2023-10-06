@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Orleans.Concurrency;
 using StreamProcessing.DummyOutput.Domain;
+using StreamProcessing.Filter.Domain;
+using StreamProcessing.Filter.Interfaces;
 using StreamProcessing.PluginCommon.Domain;
 using StreamProcessing.RandomGenerator.Domain;
 using StreamProcessing.Scenario.Domain;
@@ -104,19 +106,27 @@ internal sealed class StartingHost : BackgroundService
 
         var randomPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
         configs.Add(randomPluginConfig);
-        
-        // var randomPluginConfig2 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
-        // configs.Add(randomPluginConfig2);
-        //
-        // var randomPluginConfig3 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
-        // configs.Add(randomPluginConfig3);
 
+        var randomPluginConfig2 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
+        configs.Add(randomPluginConfig2);
+        
+        var randomPluginConfig3 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
+        configs.Add(randomPluginConfig3);
+        
+        var randomPluginConfig4 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
+        configs.Add(randomPluginConfig4);
+
+        var filterPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.Filter), Guid.NewGuid(), GetFilterConfig());
+        configs.Add(filterPluginConfig);
+        
         var dummyOutputPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.DummyOutput), Guid.NewGuid(), GetDummyOutputConfig());
         configs.Add(dummyOutputPluginConfig);
 
-        relations.Add(new LinkConfig(randomPluginConfig.Id, dummyOutputPluginConfig.Id));
-        // relations.Add(new LinkConfig(randomPluginConfig2.Id, dummyOutputPluginConfig.Id));
-        // relations.Add(new LinkConfig(randomPluginConfig3.Id, dummyOutputPluginConfig.Id));
+        relations.Add(new LinkConfig(randomPluginConfig.Id, filterPluginConfig.Id));
+        relations.Add(new LinkConfig(randomPluginConfig2.Id, filterPluginConfig.Id));
+        relations.Add(new LinkConfig(randomPluginConfig3.Id, filterPluginConfig.Id));
+        relations.Add(new LinkConfig(randomPluginConfig4.Id, filterPluginConfig.Id));
+        relations.Add(new LinkConfig(filterPluginConfig.Id, dummyOutputPluginConfig.Id));
 
         return new ScenarioConfig
         {
@@ -132,13 +142,35 @@ internal sealed class StartingHost : BackgroundService
         {
             Columns = new List<RandomColumn>
             {
-                new("Name", RandomType.Name),
-                new("Age", RandomType.Age),
-                new("LastName", RandomType.LastName),
-                new("DateTime", RandomType.DateTime),
+                new("Name", RandomType.Name, FieldType.Text),
+                new("Age", RandomType.Age, FieldType.Integer),
+                new("LastName", RandomType.LastName, FieldType.Text),
+                new("DateTime", RandomType.DateTime, FieldType.DateTime),
             },
-            Count = 3000000,
+            Count = 2000000,
             BatchCount = 10
+        };
+    }
+
+    private static FilterConfig GetFilterConfig()
+    {
+        var constraints = new List<IConstraint>();
+        constraints.Add(new FieldConstraint
+        {
+            Operator = ConstraintOperators.Greater,
+            FieldName = "Age",
+            Value = 15
+        });
+        constraints.Add(new FieldConstraint
+        {
+            Operator = ConstraintOperators.Less,
+            FieldName = "Age",
+            Value = 40
+        });
+
+        return new FilterConfig
+        {
+            Constraint = new LogicalConstraint { Operator = ConstraintOperator.And , Constraints = constraints}
         };
     }
 
@@ -147,7 +179,7 @@ internal sealed class StartingHost : BackgroundService
         return new DummyOutputConfig
         {
             IsWriteEnabled = true,
-            RecordCountInterval = 1000000,
+            RecordCountInterval = 100000,
         };
     }
 }

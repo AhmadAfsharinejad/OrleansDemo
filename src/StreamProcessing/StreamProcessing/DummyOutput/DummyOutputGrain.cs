@@ -24,13 +24,13 @@ internal sealed class DummyOutputGrain : PluginGrain<DummyOutputConfig>, IDummyO
     }
 
     [ReadOnly]
-    public async Task Compute(Guid scenarioId, Guid pluginId,
+    public async Task Compute(Immutable<PluginExecutionContext> pluginContext,
         Immutable<PluginRecords>? pluginRecords,
         GrainCancellationToken cancellationToken)
     {
         if (pluginRecords is null) return;
 
-        var config = await GetConfig(scenarioId, pluginId);
+        var config = await GetConfig(pluginContext.Value.ScenarioId, pluginContext.Value.PluginId);
 
         if (!config.IsWriteEnabled) return;
 

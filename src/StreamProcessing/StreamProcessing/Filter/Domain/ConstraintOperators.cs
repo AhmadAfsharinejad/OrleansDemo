@@ -1,6 +1,6 @@
 ﻿namespace StreamProcessing.Filter.Domain;
 
-public enum ConstraintCondition
+public enum ConstraintOperators
 {
     Equal,
     Less,

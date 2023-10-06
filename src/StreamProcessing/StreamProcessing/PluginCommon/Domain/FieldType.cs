@@ -3,9 +3,12 @@
 public enum FieldType
 {
     Text,
-    Number,
+    Integer,
+    Float,
     DateTime,
+    Date,
     TimeSpan,
     Bool,
-    Guid
+    Guid,
+    Bytes
 }

@@ -1,5 +1,4 @@
-﻿using Bogus;
-using Orleans.Concurrency;
+﻿using Orleans.Concurrency;
 using StreamProcessing.PluginCommon;
 using StreamProcessing.PluginCommon.Domain;
 using StreamProcessing.PluginCommon.Interfaces;
@@ -11,8 +10,12 @@ namespace StreamProcessing.RandomGenerator;
 [StatelessWorker]
 internal sealed class RandomGeneratorGrain : PluginGrain<RandomGeneratorConfig>, IRandomGeneratorGrain
 {
-    public RandomGeneratorGrain(IPluginGrainFactory pluginGrainFactory) : base(pluginGrainFactory)
+    private readonly IRandomRecordCreator _randomRecordCreator;
+
+    public RandomGeneratorGrain(IPluginGrainFactory pluginGrainFactory, IRandomRecordCreator randomRecordCreator) 
+        : base(pluginGrainFactory)
     {
+        _randomRecordCreator = randomRecordCreator ?? throw new ArgumentNullException(nameof(randomRecordCreator));
     }
     
     public override Task OnActivateAsync(CancellationToken cancellationToken)
@@ -22,70 +25,29 @@ internal sealed class RandomGeneratorGrain : PluginGrain<RandomGeneratorConfig>,
     }
     
     [ReadOnly]
-    public async Task Compute(Guid scenarioId, Guid pluginId,
+    public async Task Compute(Immutable<PluginExecutionContext> pluginContext,
         Immutable<PluginRecords>? pluginRecords,
         GrainCancellationToken cancellationToken)
     {
-
-        var faker = new Faker();
-        faker.Random.Guid();
-
-        var config = await GetConfig(scenarioId, pluginId);
+        var config = await GetConfig(pluginContext.Value.ScenarioId, pluginContext.Value.PluginId);
         
         var records = new List<PluginRecord>(config.BatchCount);
 
         var columnTypeByName = config.Columns.ToDictionary(x => x.Name, y => y.Type);
 
+        var outPluginContext = pluginContext.Value with { InputFieldTypes = config.Columns.ToDictionary(x => x.Name, y => y.FieldType) };
+        
         for (int i = 0; i < config.Count; i++)
         {
-            records.Add(Create(faker, columnTypeByName));
+            records.Add(_randomRecordCreator.Create(columnTypeByName));
 
             if (config.BatchCount == records.Count)
             {
-                await CallOutputs(scenarioId, pluginId, records, cancellationToken);
+                await CallOutputs(outPluginContext, records, cancellationToken);
                 records = new List<PluginRecord>(config.BatchCount);
             }
         }
 
-        await CallOutputs(scenarioId, pluginId, records, cancellationToken);
-    }
-
-    private static PluginRecord Create(Faker faker, Dictionary<string, RandomType> columnTypesByName)
-    {
-        var record = new Dictionary<string, object>();
-
-        foreach (var columnTypeByName in columnTypesByName)
-        {
-            record[columnTypeByName.Key] = GetRandom(faker, columnTypeByName.Value);
-        }
-
-        return new PluginRecord { Record = record };
-    }
-
-    //TODO Boxing performance issue
-    private static object GetRandom(Faker faker, RandomType type)
-    {
-        return type switch
-        {
-            RandomType.Bool => faker.Random.Bool(),
-            RandomType.Guid => faker.Random.Guid(),
-            RandomType.Number => faker.Random.Number(int.MinValue, int.MaxValue),
-            RandomType.Text => faker.Random.String(2, 100),
-            RandomType.TimeSpan => faker.Date.Timespan(),
-            RandomType.DateTime => faker.Date.Past(),
-            RandomType.Age => faker.Random.Number(1, 100),
-            RandomType.Name => faker.Name.FirstName(),
-            RandomType.LastName => faker.Name.LastName(),
-            RandomType.Company => faker.Company.CompanyName(),
-            RandomType.Address => faker.Address.FullAddress(),
-            RandomType.PhoneNumber => faker.Phone.PhoneNumber(),
-            RandomType.Email => faker.Internet.Email(),
-            RandomType.Gender => faker.Name.Prefix(),
-            RandomType.Ip => faker.Internet.Ip(),
-            RandomType.Account => faker.Finance.Account(),
-            RandomType.MusicGenre => faker.Music.Genre(),
-            RandomType.CreditCardNumber => faker.Finance.CreditCardNumber(),
-            _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-        };
+        await CallOutputs(outPluginContext, records, cancellationToken);
     }
 }

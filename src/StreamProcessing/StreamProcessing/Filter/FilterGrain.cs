@@ -1,4 +1,5 @@
-﻿using Orleans.Concurrency;
+﻿using System.Data;
+using Orleans.Concurrency;
 using StreamProcessing.Filter.Domain;
 using StreamProcessing.Filter.Interfaces;
 using StreamProcessing.PluginCommon;
@@ -10,8 +11,11 @@ namespace StreamProcessing.Filter;
 [StatelessWorker]
 internal sealed class FilterGrain : PluginGrain<FilterConfig>, IFilterGrain
 {
-    public FilterGrain(IPluginGrainFactory pluginGrainFactory) : base(pluginGrainFactory)
+    private readonly IFilterService _filterService;
+
+    public FilterGrain(IPluginGrainFactory pluginGrainFactory, IFilterService filterService) : base(pluginGrainFactory)
     {
+        _filterService = filterService ?? throw new ArgumentNullException(nameof(filterService));
     }
     
     public override Task OnActivateAsync(CancellationToken cancellationToken)
@@ -21,54 +25,26 @@ internal sealed class FilterGrain : PluginGrain<FilterConfig>, IFilterGrain
     }
     
     [ReadOnly]
-    public async Task Compute(Guid scenarioId, Guid pluginId, 
+    public async Task Compute(Immutable<PluginExecutionContext> pluginContext, 
         Immutable<PluginRecords>? pluginRecords, 
         GrainCancellationToken cancellationToken)
     {
         if(pluginRecords is null) return;
+
+        if (pluginContext.Value.InputFieldTypes is null) throw new NoNullAllowedException("'InputFieldTypes' can't be null.");
         
-        var config = await GetConfig(scenarioId, pluginId);
+        var config = await GetConfig(pluginContext.Value.ScenarioId, pluginContext.Value.PluginId);
+
+        var records = new List<PluginRecord>(pluginRecords.Value.Value.Records.Count);
 
         foreach (var pluginRecord in pluginRecords.Value.Value.Records!)
         {
-            if (Filter(pluginRecord, config.Constraint))
+            if (_filterService.Satisfy(pluginRecord, config.Constraint, pluginContext.Value.InputFieldTypes!))
             {
-                
+                records.Add(pluginRecord);
             }
         }
 
-        throw new NotImplementedException();
-    }
-
-    private bool Filter(PluginRecord pluginRecord, IConstraint filterConstraint)
-    {
-        if (filterConstraint is FieldConstraint fieldConstraint)
-        {
-            return Filter(pluginRecord, fieldConstraint);
-        }
-       
-        var logicalConstraint = (LogicalConstraint)filterConstraint;
-        
-        if (logicalConstraint.Operator == ConstraintOperator.And)
-        {
-            return logicalConstraint.Constraints.All(x => Filter(pluginRecord, x));
-        }
-
-        return logicalConstraint.Constraints.Any(x => Filter(pluginRecord, x));
-    }
-
-    private bool Filter(PluginRecord pluginRecord, FieldConstraint fieldConstraint)
-    {
-
-        if (!pluginRecord.Record.TryGetValue(fieldConstraint.Key, out var recordValue))
-        {
-            return true;
-        }
-
-        //TODO
-        return fieldConstraint.Condition switch
-        {
-            ConstraintCondition.Equal => recordValue == fieldConstraint.Value,
-        };
+        await CallOutputs(pluginContext.Value, records, cancellationToken);
     }
 }

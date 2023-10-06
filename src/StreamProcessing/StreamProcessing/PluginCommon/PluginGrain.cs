@@ -33,9 +33,9 @@ internal abstract class PluginGrain<TConfig> : Grain
         return _config;
     }
     
-    protected async Task CallOutputs(Guid scenarioId, Guid pluginId, List<PluginRecord> records, GrainCancellationToken cancellationToken)
+    protected async Task CallOutputs(PluginExecutionContext pluginContext, List<PluginRecord> records, GrainCancellationToken cancellationToken)
     {
-        var outputs = await GetOutpus(scenarioId, pluginId);
+        var outputs = await GetOutpus(pluginContext.ScenarioId, pluginContext.PluginId);
         if (outputs.Count == 0) return;
 
         var outputRecords = new PluginRecords { Records = records }.AsImmutable();
@@ -44,8 +44,9 @@ internal abstract class PluginGrain<TConfig> : Grain
 
         foreach (var output in outputs)
         {
+            var outPluginContext = pluginContext with { PluginId = output.PluginId };
             var pluginGrain = _pluginGrainFactory.GetOrCreate(GrainFactory,output.PluginTypeId, output.PluginId);
-            var task = pluginGrain.Compute(scenarioId, output.PluginId, outputRecords, cancellationToken);
+            var task = pluginGrain.Compute(outPluginContext.AsImmutable(), outputRecords, cancellationToken);
             tasks.Add(task);
         }
 
