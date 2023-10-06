@@ -6,7 +6,7 @@ using Orleans.Streams.Kafka.Config;
 var hostBuilder = new HostBuilder()
     .UseOrleans(siloBuilder =>
     {
-        //siloBuilder.ConfigureLogging(logginBuilder => logginBuilder.AddConsole());
+        //siloBuilder.ConfigureLogging(loggingBuilder => loggingBuilder.AddConsole());
         siloBuilder.UseLocalhostClustering()
             .AddMemoryGrainStorageAsDefault()
             .AddMemoryGrainStorage(Consts.PubSubStore)
