@@ -40,6 +40,7 @@ internal sealed class DummyOutputGrain : PluginGrain<DummyOutputConfig>, IDummyO
         if (_counter > config.RecordCountInterval)
         {
             Console.WriteLine(_totalCounter);
+            Console.WriteLine(string.Join(",", pluginRecords.Value.Value.Records.Last().Record.Select(x => $"{x.Key}:{x.Value}")));
             _counter = 0;
         }
     }
