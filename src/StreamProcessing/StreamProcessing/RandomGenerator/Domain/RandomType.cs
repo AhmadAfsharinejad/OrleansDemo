@@ -13,6 +13,11 @@ public enum RandomType
     LastName,
     Company,
     Address,
+    PhoneNumber,
     Email,
     Gender,
+    Ip,
+    Account,
+    MusicGenre,
+    CreditCardNumber
 }

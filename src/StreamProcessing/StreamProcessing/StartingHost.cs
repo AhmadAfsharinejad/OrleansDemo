@@ -105,18 +105,18 @@ internal sealed class StartingHost : BackgroundService
         var randomPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
         configs.Add(randomPluginConfig);
         
-        var randomPluginConfig2 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
-        configs.Add(randomPluginConfig2);
-        
-        var randomPluginConfig3 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
-        configs.Add(randomPluginConfig3);
+        // var randomPluginConfig2 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
+        // configs.Add(randomPluginConfig2);
+        //
+        // var randomPluginConfig3 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
+        // configs.Add(randomPluginConfig3);
 
         var dummyOutputPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.DummyOutput), Guid.NewGuid(), GetDummyOutputConfig());
         configs.Add(dummyOutputPluginConfig);
 
         relations.Add(new LinkConfig(randomPluginConfig.Id, dummyOutputPluginConfig.Id));
-        relations.Add(new LinkConfig(randomPluginConfig2.Id, dummyOutputPluginConfig.Id));
-        relations.Add(new LinkConfig(randomPluginConfig3.Id, dummyOutputPluginConfig.Id));
+        // relations.Add(new LinkConfig(randomPluginConfig2.Id, dummyOutputPluginConfig.Id));
+        // relations.Add(new LinkConfig(randomPluginConfig3.Id, dummyOutputPluginConfig.Id));
 
         return new ScenarioConfig
         {
