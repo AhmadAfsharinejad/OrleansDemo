@@ -9,7 +9,7 @@ public class OddDetectorGrain : Grain, IOddDetectorGrain
 {
     public override Task OnActivateAsync(CancellationToken cancellationToken)
     {
-        Console.WriteLine("OddDetectorGrain Activated");
+        Console.WriteLine($"OddDetectorGrain Activated {this.GetPrimaryKeyLong()}");
         return base.OnActivateAsync(cancellationToken);
     }
 
@@ -17,11 +17,11 @@ public class OddDetectorGrain : Grain, IOddDetectorGrain
     //[OneWay]
     public async Task Compute(Immutable<int[]> index)
     {
-        var last = index.Value.Last();
-        //Console.WriteLine(last);
-
-        if (last % 10000 == 0)
-            throw new Exception("Bad");
+        // var last = index.Value.Last();
+        // //Console.WriteLine(last);
+        //
+        // if (last % 10000 == 0)
+        //     throw new Exception("Bad");
 
         await Task.CompletedTask;
         //await Task.Delay(TimeSpan.FromMilliseconds(5000)).ConfigureAwait(false);

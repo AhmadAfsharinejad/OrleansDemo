@@ -4,7 +4,7 @@ using StreamProcessing.PluginCommon.Interfaces;
 
 namespace StreamProcessing.PluginCommon;
 
-public class PluginDiIntroducer : IDependencyIntroducer
+public class PluginDiAdder : IServiceAdder
 {
     public void AddService(IServiceCollection collection)
     {

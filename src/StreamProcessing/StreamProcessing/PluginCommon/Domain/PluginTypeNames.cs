@@ -3,5 +3,6 @@
 public enum PluginTypeNames
 {
     Random,
-    Filter
+    Filter,
+    DummyOutput
 }

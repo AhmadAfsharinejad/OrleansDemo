@@ -3,8 +3,8 @@ using StreamProcessing.TestGrains.Interfaces;
 
 namespace StreamProcessing.TestGrains;
 
-[StatelessWorker(5)]
-[Reentrant]
+[StatelessWorker(4)]
+//[Reentrant]
 public class PassAwayGrain : Grain, IPassAwayGrain
 {
     private IOddDetectorGrain grain;
@@ -12,7 +12,7 @@ public class PassAwayGrain : Grain, IPassAwayGrain
     {
         grain = GrainFactory.GetGrain<IOddDetectorGrain>(0);
 
-        Console.WriteLine("PassAwayGrain Activated");
+        Console.WriteLine($"PassAwayGrain Activated  {this.GetPrimaryKeyLong()}, {this.GetGrainId()}");
         return base.OnActivateAsync(cancellationToken);
     }
     
@@ -21,5 +21,11 @@ public class PassAwayGrain : Grain, IPassAwayGrain
     public async Task Compute(Immutable<int[]> index)
     {
         await grain.Compute(index);
+    }
+
+    public Task SayHello()
+    {
+        Console.WriteLine($"hello from {this.GetPrimaryKeyLong()}, {this.GetGrainId()}");
+        return Task.CompletedTask;
     }
 }

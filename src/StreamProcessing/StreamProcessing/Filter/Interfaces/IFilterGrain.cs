@@ -4,5 +4,4 @@ namespace StreamProcessing.Filter.Interfaces;
 
 internal interface IFilterGrain : IPluginGrain
 {
-   
 }

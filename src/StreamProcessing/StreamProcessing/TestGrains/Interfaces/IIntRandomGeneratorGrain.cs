@@ -1,6 +1,6 @@
 ﻿namespace StreamProcessing.TestGrains.Interfaces;
 
-public interface IRandomGeneratorGrain : IGrainWithIntegerKey
+public interface IIntRandomGeneratorGrain : IGrainWithIntegerKey
 {
     Task Compute();
 }

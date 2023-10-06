@@ -2,7 +2,7 @@
 
 namespace StreamProcessing.TestGrains;
 
-public class RandomGeneratorGrain : Grain, IRandomGeneratorGrain
+public class IntRandomGeneratorGrain : Grain, IIntRandomGeneratorGrain
 {
     public override Task OnActivateAsync(CancellationToken cancellationToken)
     {

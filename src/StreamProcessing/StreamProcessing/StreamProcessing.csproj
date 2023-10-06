@@ -11,6 +11,7 @@
         <PackageReference Include="Microsoft.Orleans.Server" Version="7.2.1" />
         <PackageReference Include="Microsoft.Orleans.Streaming " Version="7.2.1" />
         <PackageReference Include="StronglyTypedId" Version="1.0.0-beta06" />
+        <PackageReference Include="Bogus" Version="34.0.2" />
     </ItemGroup>
 
 </Project>

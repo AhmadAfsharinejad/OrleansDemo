@@ -2,7 +2,7 @@
 
 namespace StreamProcessing.Di;
 
-internal interface IDependencyIntroducer
+internal interface IServiceAdder
 {
     void AddService(IServiceCollection collection);
 }

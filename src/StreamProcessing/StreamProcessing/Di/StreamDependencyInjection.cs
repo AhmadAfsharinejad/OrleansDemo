@@ -6,26 +6,26 @@ public static class StreamDependencyInjection
 {
     public static IServiceCollection AddStreamServices(this IServiceCollection collection)
     {
-        var dependencyIntroducers = FindDependencyIntroducers();
-        foreach (var dependencyIntroducer in dependencyIntroducers)
+        var serviceAdders = FindDependencyIntroducers();
+        foreach (var serviceAdder in serviceAdders)
         {
-            dependencyIntroducer.AddService(collection);
+            serviceAdder.AddService(collection);
         }
         
         return collection;
     }
     
-    private static IEnumerable<IDependencyIntroducer> FindDependencyIntroducers()
+    private static IEnumerable<IServiceAdder> FindDependencyIntroducers()
     {
-        var dependencyInstallerTypes = typeof(IDependencyIntroducer).Assembly
+        var dependencyTypes = typeof(IServiceAdder).Assembly
             .DefinedTypes
             .Where(type => type is { IsAbstract: false, IsInterface: false } &&
-                           typeof(IDependencyIntroducer).IsAssignableFrom(type))
+                           typeof(IServiceAdder).IsAssignableFrom(type))
             .ToArray();
 
-        return dependencyInstallerTypes
+        return dependencyTypes
             .Select(Activator.CreateInstance)
-            .Cast<IDependencyIntroducer>()
+            .Cast<IServiceAdder>()
             .ToArray();
     }
 }

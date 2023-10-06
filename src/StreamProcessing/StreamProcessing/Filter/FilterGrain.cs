@@ -3,19 +3,32 @@ using StreamProcessing.Filter.Domain;
 using StreamProcessing.Filter.Interfaces;
 using StreamProcessing.PluginCommon;
 using StreamProcessing.PluginCommon.Domain;
+using StreamProcessing.PluginCommon.Interfaces;
 
 namespace StreamProcessing.Filter;
 
 [StatelessWorker]
 internal sealed class FilterGrain : PluginGrain<FilterConfig>, IFilterGrain
 {
+    public FilterGrain(IPluginGrainFactory pluginGrainFactory) : base(pluginGrainFactory)
+    {
+    }
+    
+    public override Task OnActivateAsync(CancellationToken cancellationToken)
+    {
+        Console.WriteLine($"FilterGrain Activated  {this.GetGrainId()}");
+        return base.OnActivateAsync(cancellationToken);
+    }
+    
     [ReadOnly]
-    [OneWay]
-    public async Task Compute(Immutable<Guid> pluginId, Immutable<PluginRecords>? pluginRecords, GrainCancellationToken cancellationToken)
+    //[OneWay]
+    public async Task Compute(Guid scenarioId, Guid pluginId, 
+        Immutable<PluginRecords>? pluginRecords, 
+        GrainCancellationToken cancellationToken)
     {
         if(pluginRecords is null) return;
         
-        var config = await GetConfig(pluginId.Value);
+        var config = await GetConfig(scenarioId, pluginId);
 
         foreach (var pluginRecord in pluginRecords.Value.Value.Records!)
         {

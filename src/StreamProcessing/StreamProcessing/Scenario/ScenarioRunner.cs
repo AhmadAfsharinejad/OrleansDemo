@@ -23,10 +23,13 @@ internal class ScenarioRunner : IScenarioRunner
         
         var runTasks = new List<Task>();
 
+        var scenarioGrain = _grainFactory.GetGrain<IScenarioGrain>(config.Id);
+        await scenarioGrain.AddScenario(config);
+
         foreach (var plugin in FindStartingPlugins(config))
         {
-            var grain = _pluginGrainFactory.GetOrCreate(plugin.PluginTypeId, plugin.Id);
-            var runTask = grain.Compute(plugin.Id.AsImmutable(), null, tcs.Token);
+            var grain = _pluginGrainFactory.GetOrCreate(_grainFactory, plugin.PluginTypeId, plugin.Id);
+            var runTask = grain.Compute(config.Id, plugin.Id, null, tcs.Token);
             runTasks.Add(runTask);
         }
 

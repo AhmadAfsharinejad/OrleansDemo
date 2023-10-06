@@ -2,12 +2,13 @@
 using Microsoft.Extensions.Hosting;
 using StreamProcessing;
 using StreamProcessing.Di;
+using StreamProcessing.Silo;
 
 var hostBuilder = new HostBuilder()
     .UseOrleans(siloBuilder =>
     {
         siloBuilder.UseLocalhostClustering();
-        siloBuilder.AddMemoryGrainStorage("Storage");
+        siloBuilder.AddMemoryGrainStorage(SiloConsts.StorageName);
         siloBuilder.Services.AddStreamServices();
         //siloBuilder.ConfigureLogging(loggingBuilder => loggingBuilder.AddConsole());
     });

@@ -2,12 +2,12 @@
 using StreamProcessing.Di;
 using StreamProcessing.PluginCommon.Interfaces;
 
-namespace StreamProcessing.RandomGenerator;
+namespace StreamProcessing.DummyOutput;
 
-public class RandomGeneratorDiIntroducer : IDependencyIntroducer
+internal sealed class DummyOutputDiAdder: IServiceAdder
 {
     public void AddService(IServiceCollection collection)
     {
-        collection.AddSingleton<IPluginGrainIntroducer, RandomGeneratorGrainIntroducer>();
+        collection.AddSingleton<IPluginGrainIntroducer, DummyOutputGrainIntroducer>();
     }
 }
