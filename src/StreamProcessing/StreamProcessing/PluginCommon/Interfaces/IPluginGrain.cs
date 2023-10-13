@@ -6,7 +6,7 @@ namespace StreamProcessing.PluginCommon.Interfaces;
 internal interface IPluginGrain : IGrainWithGuidKey
 {
     [ReadOnly]
-    //[OneWay] --> Note: dge await nemishe
+    //[OneWay] --> Note: do not wait task
     Task Compute([Immutable] PluginExecutionContext pluginContext, 
         [Immutable] PluginRecords? pluginRecords,
         GrainCancellationToken cancellationToken);
