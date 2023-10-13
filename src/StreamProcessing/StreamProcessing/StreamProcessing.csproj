@@ -13,5 +13,11 @@
         <PackageReference Include="StronglyTypedId" Version="1.0.0-beta06" />
         <PackageReference Include="Bogus" Version="34.0.2" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Reference Include="System.Data.Odbc">
+        <HintPath>..\Odbc.Sample\bin\Debug\net7.0\runtimes\win\lib\net7.0\System.Data.Odbc.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 
 </Project>

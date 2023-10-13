@@ -5,5 +5,6 @@ public enum PluginTypeNames
     Random,
     Filter,
     Aggregator,
-    DummyOutput
+    DummyOutput,
+    SqlExecutor
 }

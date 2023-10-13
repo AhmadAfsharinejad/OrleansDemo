@@ -1,0 +1,25 @@
+##web gui --> http://localhost:8123/play
+version: '3.7'
+
+services:
+  clickhouse:
+    image: yandex/clickhouse-server
+    container_name: clickhouse
+    environment:
+      # Default user and database will be created using `init-defaults.sh` script
+      CLICKHOUSE_DB: db
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: admin
+    ports:
+      - "8123:8123" # ClickHouse HTTP port
+      - "9000:9000" # ClickHouse native port
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    networks:
+      - clickhouse-net
+
+networks:
+  clickhouse-net:
+
+volumes:
+  clickhouse-data:

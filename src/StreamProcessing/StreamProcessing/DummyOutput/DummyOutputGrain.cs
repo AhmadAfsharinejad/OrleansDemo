@@ -8,13 +8,16 @@ using StreamProcessing.PluginCommon.Interfaces;
 namespace StreamProcessing.DummyOutput;
 
 [StatelessWorker]
-internal sealed class DummyOutputGrain : PluginGrain<DummyOutputConfig>, IDummyOutputGrain
+[Reentrant]
+internal sealed class DummyOutputGrain : PluginGrain, IDummyOutputGrain
 {
+    private readonly IPluginConfigFetcher<DummyOutputConfig> _pluginConfigFetcher;
     private int _counter;
     private int _totalCounter;
 
-    public DummyOutputGrain(IPluginGrainFactory pluginGrainFactory) : base(pluginGrainFactory)
+    public DummyOutputGrain(IPluginConfigFetcher<DummyOutputConfig> pluginConfigFetcher)
     {
+        _pluginConfigFetcher = pluginConfigFetcher ?? throw new ArgumentNullException(nameof(pluginConfigFetcher));
     }
 
     public override Task OnActivateAsync(CancellationToken cancellationToken)
@@ -24,23 +27,23 @@ internal sealed class DummyOutputGrain : PluginGrain<DummyOutputConfig>, IDummyO
     }
 
     [ReadOnly]
-    public async Task Compute(Immutable<PluginExecutionContext> pluginContext,
-        Immutable<PluginRecords>? pluginRecords,
+    public async Task Compute([Immutable] PluginExecutionContext pluginContext,
+        [Immutable] PluginRecords? pluginRecords,
         GrainCancellationToken cancellationToken)
     {
         if (pluginRecords is null) return;
 
-        var config = await GetConfig(pluginContext.Value.ScenarioId, pluginContext.Value.PluginId);
+        var config = await _pluginConfigFetcher.GetConfig(pluginContext.ScenarioId, pluginContext.PluginId);
 
         if (!config.IsWriteEnabled) return;
 
-        _counter += pluginRecords.Value.Value.Records.Count;
-        _totalCounter += pluginRecords.Value.Value.Records.Count;
+        _counter += pluginRecords.Value.Records.Count;
+        _totalCounter += pluginRecords.Value.Records.Count;
 
         if (_counter > config.RecordCountInterval)
         {
             Console.WriteLine(_totalCounter);
-            Console.WriteLine(string.Join(",", pluginRecords.Value.Value.Records.Last().Record.Select(x => $"{x.Key}:{x.Value}")));
+            Console.WriteLine(string.Join(",", pluginRecords.Value.Records.Last().Record.Select(x => $"{x.Key}:{x.Value}")));
             _counter = 0;
         }
     }

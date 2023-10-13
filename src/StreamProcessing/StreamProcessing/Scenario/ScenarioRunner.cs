@@ -1,5 +1,4 @@
-﻿using Orleans.Concurrency;
-using StreamProcessing.PluginCommon.Domain;
+﻿using StreamProcessing.PluginCommon.Domain;
 using StreamProcessing.PluginCommon.Interfaces;
 using StreamProcessing.Scenario.Domain;
 using StreamProcessing.Scenario.Interfaces;
@@ -29,9 +28,9 @@ internal class ScenarioRunner : IScenarioRunner
 
         foreach (var plugin in FindStartingPlugins(config))
         {
-            var grain = _pluginGrainFactory.GetOrCreate(_grainFactory, plugin.PluginTypeId, plugin.Id);
+            var grain = _pluginGrainFactory.GetOrCreate(plugin.PluginTypeId, plugin.Id);
             var runTask = grain.Compute(
-                new PluginExecutionContext(config.Id, plugin.Id, null).AsImmutable(),
+                new PluginExecutionContext(config.Id, plugin.Id, null),
                 null, tcs.Token);
             runTasks.Add(runTask);
         }

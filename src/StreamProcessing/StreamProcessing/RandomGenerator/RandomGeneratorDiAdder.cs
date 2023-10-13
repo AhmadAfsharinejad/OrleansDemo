@@ -2,6 +2,7 @@
 using StreamProcessing.Di;
 using StreamProcessing.PluginCommon.Interfaces;
 using StreamProcessing.RandomGenerator.Interfaces;
+using StreamProcessing.RandomGenerator.Logic;
 
 namespace StreamProcessing.RandomGenerator;
 

@@ -1,6 +1,3 @@
 ﻿namespace StreamProcessing.PluginCommon.Domain;
 
-internal record struct PluginRecord
-{
-    public IReadOnlyDictionary<string, object> Record;
-}
+internal record struct PluginRecord(IReadOnlyDictionary<string, object> Record);

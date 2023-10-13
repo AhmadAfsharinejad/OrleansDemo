@@ -6,6 +6,6 @@ namespace StreamProcessing.Filter;
 
 internal sealed class FilterGrainIntroducer : IPluginGrainIntroducer
 {
-    public PluginTypeId PluginTypeId => new(PluginTypeNames.Filter.ToString());
+    public PluginTypeId PluginTypeId => new(PluginTypeNames.Filter);
     public Type GrainInterface => typeof(IFilterGrain);
 }

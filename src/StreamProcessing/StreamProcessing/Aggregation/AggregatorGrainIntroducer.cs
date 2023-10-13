@@ -6,6 +6,6 @@ namespace StreamProcessing.Aggregation;
 
 internal sealed class AggregatorGrainIntroducer : IPluginGrainIntroducer
 {
-    public PluginTypeId PluginTypeId => new(PluginTypeNames.Aggregator.ToString());
+    public PluginTypeId PluginTypeId => new(PluginTypeNames.Aggregator);
     public Type GrainInterface => typeof(IAggregatorGrain);
 }

@@ -3,7 +3,7 @@ using StreamProcessing.PluginCommon.Domain;
 using StreamProcessing.RandomGenerator.Domain;
 using StreamProcessing.RandomGenerator.Interfaces;
 
-namespace StreamProcessing.RandomGenerator;
+namespace StreamProcessing.RandomGenerator.Logic;
 
 internal sealed class RandomRecordCreator : IRandomRecordCreator
 {

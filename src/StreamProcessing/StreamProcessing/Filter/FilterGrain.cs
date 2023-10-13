@@ -9,12 +9,19 @@ using StreamProcessing.PluginCommon.Interfaces;
 namespace StreamProcessing.Filter;
 
 [StatelessWorker]
-internal sealed class FilterGrain : PluginGrain<FilterConfig>, IFilterGrain
+[Reentrant]
+internal sealed class FilterGrain : PluginGrain, IFilterGrain
 {
+    private readonly IPluginOutputCaller _pluginOutputCaller;
+    private readonly IPluginConfigFetcher<FilterConfig> _pluginConfigFetcher;
     private readonly IFilterService _filterService;
 
-    public FilterGrain(IPluginGrainFactory pluginGrainFactory, IFilterService filterService) : base(pluginGrainFactory)
+    public FilterGrain(IPluginOutputCaller pluginOutputCaller,
+        IPluginConfigFetcher<FilterConfig> pluginConfigFetcher,
+        IFilterService filterService)
     {
+        _pluginOutputCaller = pluginOutputCaller ?? throw new ArgumentNullException(nameof(pluginOutputCaller));
+        _pluginConfigFetcher = pluginConfigFetcher ?? throw new ArgumentNullException(nameof(pluginConfigFetcher));
         _filterService = filterService ?? throw new ArgumentNullException(nameof(filterService));
     }
     
@@ -25,26 +32,26 @@ internal sealed class FilterGrain : PluginGrain<FilterConfig>, IFilterGrain
     }
     
     [ReadOnly]
-    public async Task Compute(Immutable<PluginExecutionContext> pluginContext, 
-        Immutable<PluginRecords>? pluginRecords, 
+    public async Task Compute([Immutable] PluginExecutionContext pluginContext, 
+        [Immutable] PluginRecords? pluginRecords, 
         GrainCancellationToken cancellationToken)
     {
         if(pluginRecords is null) return;
 
-        if (pluginContext.Value.InputFieldTypes is null) throw new NoNullAllowedException("'InputFieldTypes' can't be null.");
+        if (pluginContext.InputFieldTypes is null) throw new NoNullAllowedException("'InputFieldTypes' can't be null.");
         
-        var config = await GetConfig(pluginContext.Value.ScenarioId, pluginContext.Value.PluginId);
+        var config = await _pluginConfigFetcher.GetConfig(pluginContext.ScenarioId, pluginContext.PluginId);
 
-        var records = new List<PluginRecord>(pluginRecords.Value.Value.Records.Count);
+        var records = new List<PluginRecord>(pluginRecords.Value.Records.Count);
 
-        foreach (var pluginRecord in pluginRecords.Value.Value.Records!)
+        foreach (var pluginRecord in pluginRecords.Value.Records)
         {
-            if (_filterService.Satisfy(pluginRecord, config.Constraint, pluginContext.Value.InputFieldTypes!))
+            if (_filterService.Satisfy(pluginRecord, config.Constraint, pluginContext.InputFieldTypes!))
             {
                 records.Add(pluginRecord);
             }
         }
 
-        await CallOutputs(pluginContext.Value, records, cancellationToken);
+        await _pluginOutputCaller.CallOutputs(pluginContext, records, cancellationToken);
     }
 }

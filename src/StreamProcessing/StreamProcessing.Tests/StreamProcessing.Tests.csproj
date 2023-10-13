@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\StreamProcessing\StreamProcessing.csproj" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="xunit" Version="2.5.2" />
+        <PackageReference Include="xunit.assert" Version="2.5.2" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
+        <PackageReference Include="NSubstitute" Version="5.1.0" />
+        <PackageReference Include="FluentAssertions" Version="6.12.0" />
+        <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <Reference Include="System.Data.Odbc">
+        <HintPath>..\Odbc.Sample\bin\Debug\net7.0\runtimes\win\lib\net7.0\System.Data.Odbc.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>

@@ -8,10 +8,14 @@ using StreamProcessing.PluginCommon.Interfaces;
 namespace StreamProcessing.Aggregation;
 
 [StatelessWorker]
-internal sealed class AggregatorGrain : PluginGrain<AggregationConfig>, IAggregatorGrain
+[Reentrant]
+internal sealed class AggregatorGrain : PluginGrain, IAggregatorGrain
 {
-    public AggregatorGrain(IPluginGrainFactory pluginGrainFactory) : base(pluginGrainFactory)
+    private readonly IPluginConfigFetcher<AggregationConfig> _pluginConfigFetcher;
+
+    public AggregatorGrain(IPluginConfigFetcher<AggregationConfig> pluginConfigFetcher)
     {
+        _pluginConfigFetcher = pluginConfigFetcher ?? throw new ArgumentNullException(nameof(pluginConfigFetcher));
     }
     
     public override Task OnActivateAsync(CancellationToken cancellationToken)
@@ -21,8 +25,8 @@ internal sealed class AggregatorGrain : PluginGrain<AggregationConfig>, IAggrega
     }
 
     [ReadOnly]
-    public async Task Compute(Immutable<PluginExecutionContext> pluginContext, 
-        Immutable<PluginRecords>? pluginRecords, 
+    public async Task Compute([Immutable] PluginExecutionContext pluginContext, 
+        [Immutable] PluginRecords? pluginRecords, 
         GrainCancellationToken cancellationToken)
     {
         if(pluginRecords is null) return;

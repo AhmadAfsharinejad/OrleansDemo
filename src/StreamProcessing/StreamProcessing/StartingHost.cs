@@ -7,6 +7,7 @@ using StreamProcessing.PluginCommon.Domain;
 using StreamProcessing.RandomGenerator.Domain;
 using StreamProcessing.Scenario.Domain;
 using StreamProcessing.Scenario.Interfaces;
+using StreamProcessing.SqlExecutor.Domain;
 using StreamProcessing.TestGrains.Interfaces;
 
 namespace StreamProcessing;
@@ -52,7 +53,9 @@ internal sealed class StartingHost : BackgroundService
     {
         var grain = _grainFactory.GetGrain<IPassAwayGrain>(grainId);
 
+#pragma warning disable CS4014
         Task.Run(async () =>
+#pragma warning restore CS4014
         {
             if (grainId != 1) return;
 
@@ -78,7 +81,7 @@ internal sealed class StartingHost : BackgroundService
                 }
                 catch (Exception e)
                 {
-                    //Console.WriteLine(e);
+                    Console.WriteLine(e);
                 }
 
                 items = new int[batchCount];
@@ -109,24 +112,32 @@ internal sealed class StartingHost : BackgroundService
 
         var randomPluginConfig2 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
         configs.Add(randomPluginConfig2);
-        
+
         var randomPluginConfig3 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
         configs.Add(randomPluginConfig3);
-        
+
         var randomPluginConfig4 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
         configs.Add(randomPluginConfig4);
 
         var filterPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.Filter), Guid.NewGuid(), GetFilterConfig());
         configs.Add(filterPluginConfig);
         
+        var filterPluginConfig2 = new PluginConfig(new PluginTypeId(PluginTypeNames.Filter), Guid.NewGuid(), GetFilterConfig());
+        configs.Add(filterPluginConfig2);
+        
+        var sqlExecutorConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.SqlExecutor), Guid.NewGuid(), GetSqlExecutorConfig());
+        configs.Add(sqlExecutorConfig);
+
         var dummyOutputPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.DummyOutput), Guid.NewGuid(), GetDummyOutputConfig());
         configs.Add(dummyOutputPluginConfig);
 
         relations.Add(new LinkConfig(randomPluginConfig.Id, filterPluginConfig.Id));
         relations.Add(new LinkConfig(randomPluginConfig2.Id, filterPluginConfig.Id));
-        relations.Add(new LinkConfig(randomPluginConfig3.Id, filterPluginConfig.Id));
-        relations.Add(new LinkConfig(randomPluginConfig4.Id, filterPluginConfig.Id));
+        relations.Add(new LinkConfig(randomPluginConfig3.Id, filterPluginConfig2.Id));
+        relations.Add(new LinkConfig(randomPluginConfig4.Id, filterPluginConfig2.Id));
         relations.Add(new LinkConfig(filterPluginConfig.Id, dummyOutputPluginConfig.Id));
+        relations.Add(new LinkConfig(filterPluginConfig2.Id, sqlExecutorConfig.Id));
+        relations.Add(new LinkConfig(sqlExecutorConfig.Id, dummyOutputPluginConfig.Id));
 
         return new ScenarioConfig
         {
@@ -142,35 +153,57 @@ internal sealed class StartingHost : BackgroundService
         {
             Columns = new List<RandomColumn>
             {
-                new("Name", RandomType.Name, FieldType.Text),
-                new("Age", RandomType.Age, FieldType.Integer),
-                new("LastName", RandomType.LastName, FieldType.Text),
-                new("DateTime", RandomType.DateTime, FieldType.DateTime),
+                new(new("Name", FieldType.Text), RandomType.Name),
+                new(new("Age", FieldType.Integer), RandomType.Age),
+                new(new("LastName", FieldType.Text), RandomType.LastName),
+                new(new("DateTime", FieldType.DateTime), RandomType.DateTime),
             },
-            Count = 2000000,
+            Count = 1000000,
             BatchCount = 10
         };
     }
 
     private static FilterConfig GetFilterConfig()
     {
-        var constraints = new List<IConstraint>();
-        constraints.Add(new FieldConstraint
+        var constraints = new List<IConstraint>
         {
-            Operator = ConstraintOperators.Greater,
-            FieldName = "Age",
-            Value = 15
-        });
-        constraints.Add(new FieldConstraint
-        {
-            Operator = ConstraintOperators.Less,
-            FieldName = "Age",
-            Value = 40
-        });
+            new FieldConstraint
+            {
+                Operator = ConstraintOperators.Greater,
+                FieldName = "Age",
+                Value = 15
+            },
+            new FieldConstraint
+            {
+                Operator = ConstraintOperators.Less,
+                FieldName = "Age",
+                Value = 40
+            }
+        };
 
         return new FilterConfig
         {
-            Constraint = new LogicalConstraint { Operator = ConstraintOperator.And , Constraints = constraints}
+            Constraint = new LogicalConstraint { Operator = ConstraintOperator.And, Constraints = constraints }
+        };
+    }
+
+    private static SqlExecutorConfig GetSqlExecutorConfig()
+    {
+        return new SqlExecutorConfig
+        {
+            ConnectionString = @"Driver={ClickHouse ODBC Driver (Unicode)};Host=localhost;PORT=8123;Timeout=500;Username=admin;Password=admin",
+            JoinType = RecordJoinType.Append,
+            DqlCommand = new DqlCommand
+            {
+                CommandText = @"SELECT now() as dateTime, ? as age",
+                ParameterFileds = new[] { "Age" },
+                OutputFileds = new[]
+                {
+                    new DqlField("dateTime", new StreamField("db_dateTime", FieldType.DateTime)),
+                    new DqlField("age", new StreamField("db_age", FieldType.Integer))
+                }
+            },
+            DmlCommands = null
         };
     }
 
