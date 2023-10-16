@@ -1,5 +1,4 @@
-﻿using System.Data.Odbc;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Orleans.Concurrency;
 using StreamProcessing.PluginCommon;
 using StreamProcessing.PluginCommon.Domain;
@@ -16,19 +15,23 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
 {
     private readonly IPluginOutputCaller _pluginOutputCaller;
     private readonly IPluginConfigFetcher<SqlExecutorConfig> _pluginConfigFetcher;
+    private readonly IConnectionFactory _connectionFactory;
     private readonly ISqlExecutorService _sqlExecutorService;
     private readonly IFieldTypeJoiner _fieldTypeJoiner;
-    private OdbcConnection? _connection;
+    private IStreamDbConnection? _connection;
+    private IStreamDbCommand? _command;
     private IReadOnlyDictionary<string, FieldType>? _outputFieldTypes;
     private bool _hasBeenInit;
 
     public SqlExecutorGrain(IPluginOutputCaller pluginOutputCaller,
         IPluginConfigFetcher<SqlExecutorConfig> pluginConfigFetcher,
+        IConnectionFactory connectionFactory,
         ISqlExecutorService sqlExecutorService,
         IFieldTypeJoiner fieldTypeJoiner)
     {
         _pluginOutputCaller = pluginOutputCaller ?? throw new ArgumentNullException(nameof(pluginOutputCaller));
         _pluginConfigFetcher = pluginConfigFetcher ?? throw new ArgumentNullException(nameof(pluginConfigFetcher));
+        _connectionFactory = connectionFactory ?? throw new ArgumentNullException(nameof(connectionFactory));
         _sqlExecutorService = sqlExecutorService ?? throw new ArgumentNullException(nameof(sqlExecutorService));
         _fieldTypeJoiner = fieldTypeJoiner ?? throw new ArgumentNullException(nameof(fieldTypeJoiner));
     }
@@ -56,8 +59,10 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
             return;
         }
 
+        _command!.Dispose();
         await _connection.DisposeAsync();
 
+        _command = null;
         _connection = null;
         _outputFieldTypes = null;
     }
@@ -95,7 +100,7 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
     {
         var records = new List<PluginRecord>();
 
-        await foreach (var readRecord in _sqlExecutorService.Execute(_connection!, config, record, cancellationToken))
+        await foreach (var readRecord in _sqlExecutorService.Execute(_connection!, _command!, config, record, cancellationToken))
         {
             records.Add(readRecord);
         }
@@ -110,6 +115,9 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
         if (_hasBeenInit) return;
 
         await InitConnection(config, cancellationToken);
+
+        _command = _connection!.CreateStreamDbCommand();
+        
         InitOutputFieldTypes(inputFieldTypesByName, config);
 
         _hasBeenInit = true;
@@ -117,7 +125,7 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
 
     private async Task InitConnection(SqlExecutorConfig config, CancellationToken cancellationToken)
     {
-        _connection = new OdbcConnection(config.ConnectionString);
+        _connection = _connectionFactory.Create(config.ConnectionString);
         await _connection.OpenAsync(cancellationToken);
     }
 

@@ -7,8 +7,8 @@ namespace StreamProcessing.SqlExecutor.Logic;
 [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility")]
 internal sealed class ConnectionFactory : IConnectionFactory
 {
-    public OdbcConnection Create(string connectionString)
+    public IStreamDbConnection Create(string connectionString)
     {
-        return new OdbcConnection(connectionString);
+        return new StreamDbConnection(new OdbcConnection(connectionString));
     }
 }

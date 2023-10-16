@@ -1,23 +1,24 @@
-﻿using System.Data.Odbc;
-using StreamProcessing.SqlExecutor.Domain;
+﻿using StreamProcessing.SqlExecutor.Domain;
 using StreamProcessing.SqlExecutor.Interfaces;
 
 namespace StreamProcessing.SqlExecutor.Logic;
 
 internal sealed class DmlExecutor : IDmlExecutor
 {
-    private readonly IParameterCommandCreator _commandCreator;
+    private readonly ICommandFiller _commandFiller;
 
-    public DmlExecutor(IParameterCommandCreator commandCreator)
+    public DmlExecutor(ICommandFiller commandFiller)
     {
-        _commandCreator = commandCreator ?? throw new ArgumentNullException(nameof(commandCreator));
+        _commandFiller = commandFiller ?? throw new ArgumentNullException(nameof(commandFiller));
     }
     
-    public async Task Execute(OdbcConnection connection, 
+    public async Task Execute(IStreamDbConnection connection, 
+        IStreamDbCommand command,
         DmlCommand dmlCommand, 
-        IReadOnlyDictionary<string, object>? record)
+        IReadOnlyDictionary<string, object>? record,
+        CancellationToken cancellationToken)
     {
-        using var command = _commandCreator.Create(connection, dmlCommand.CommandText, dmlCommand.ParameterFileds, record);
+        _commandFiller.Fill(connection, command, dmlCommand.CommandText, dmlCommand.ParameterFileds, record);
         command.ExecuteNonQuery();
         //Note:ExecuteNonQueryAsync call ExecuteNonQuery and return Task.FromResult!
         await Task.CompletedTask;

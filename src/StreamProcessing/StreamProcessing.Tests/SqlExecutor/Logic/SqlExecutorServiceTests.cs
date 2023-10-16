@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Odbc;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using StreamProcessing.PluginCommon.Domain;
@@ -28,31 +28,31 @@ public sealed class SqlExecutorServiceTests
     }
 
     [Fact]
-    public async Task Execute_ShouldCallDmlExecutor_WhenDmlCommnadsIsNotNullOrEmpty()
+    public async Task Execute_ShouldCallDmlExecutor_WhenDmlCommandsIsNotNullOrEmpty()
     {
         // Arrange
         var config = GetSqlExecutorConfig();
         var record = new PluginRecord(new Dictionary<string, object> { { "f1", 1 }, { "f2", "data" } });
 
         // Act
-        await foreach (var _ in _sut.Execute(default!, config, record, default))
+        await foreach (var _ in _sut.Execute(default!, default!, config, record, default))
         {
         }
 
         // Assert
         foreach (var dmlCommand in config.DmlCommands!)
         {
-            await _dmlExecutor.Received(1).Execute(Arg.Any<OdbcConnection>(), dmlCommand, record.Record);
+            await _dmlExecutor.Received(1).Execute(Arg.Any<IStreamDbConnection>(), Arg.Any<IStreamDbCommand>(), dmlCommand, record.Record, Arg.Any<CancellationToken>());
         }
 
         //Assert
-        await _dmlExecutor.ReceivedWithAnyArgs(2).Execute(default!, default, default!);
+        await _dmlExecutor.ReceivedWithAnyArgs(2).Execute(default!, default!, default, default!, default);
     }
 
     [Theory]
     [InlineData(null)]
     [MemberData(nameof(EmptyDmlCommand))]
-    public async Task Execute_ShouldNotCallDmlExecutor_WhenDmlCommnadsIsNullOrEmpty(IReadOnlyCollection<DmlCommand>? dmlCommands)
+    public async Task Execute_ShouldNotCallDmlExecutor_WhenDmlCommandsIsNullOrEmpty(IReadOnlyCollection<DmlCommand>? dmlCommands)
     {
         // Arrange
         var config = GetSqlExecutorConfig();
@@ -60,12 +60,12 @@ public sealed class SqlExecutorServiceTests
         var record = new PluginRecord(new Dictionary<string, object> { { "f1", 1 }, { "f2", "data" } });
 
         // Act
-        await foreach (var _ in _sut.Execute(default!, config, record, default))
+        await foreach (var _ in _sut.Execute(default!, default!, config, record, default))
         {
         }
 
         // Assert
-        await _dmlExecutor.DidNotReceiveWithAnyArgs().Execute(default!, default, default!);
+        await _dmlExecutor.DidNotReceiveWithAnyArgs().Execute(default!, default!, default, default!, default);
     }
 
     public static IEnumerable<object[]> EmptyDmlCommand =>
@@ -75,25 +75,25 @@ public sealed class SqlExecutorServiceTests
         };
 
     [Fact]
-    public async Task Execute_ShouldCallDqlExecutor_WhenDqlCommnadIsNotNull()
+    public async Task Execute_ShouldCallDqlExecutor_WhenDqlCommandIsNotNull()
     {
         // Arrange
         var config = GetSqlExecutorConfig();
         var record = new PluginRecord(new Dictionary<string, object> { { "f1", 1 }, { "f2", "data" } });
 
         // Act
-        await foreach (var _ in _sut.Execute(default!, config, record, default))
+        await foreach (var _ in _sut.Execute(default!, default!, config, record, default))
         {
         }
 
         //Assert
-        await foreach (var _ in _dqlReader.Received(1).Read(Arg.Any<OdbcConnection>(), config.DqlCommand!.Value, record.Record, default))
+        await foreach (var _ in _dqlReader.Received(1).Read(Arg.Any<IStreamDbConnection>(), Arg.Any<IStreamDbCommand>(), config.DqlCommand!.Value, record.Record, default))
         {
         }
     }
 
     [Fact]
-    public async Task Execute_ShouldNotCallDqlExecutor_WhenDqlCommnadIsNull()
+    public async Task Execute_ShouldNotCallDqlExecutor_WhenDqlCommandIsNull()
     {
         // Arrange
         var config = GetSqlExecutorConfig();
@@ -101,12 +101,12 @@ public sealed class SqlExecutorServiceTests
         var record = new PluginRecord(new Dictionary<string, object> { { "f1", 1 }, { "f2", "data" } });
 
         // Act
-        await foreach (var _ in _sut.Execute(default!, config, record, default))
+        await foreach (var _ in _sut.Execute(default!, default!, config, record, default))
         {
         }
 
         //Assert
-        await foreach (var _ in _dqlReader.DidNotReceiveWithAnyArgs().Read(default!, default, default!, default))
+        await foreach (var _ in _dqlReader.DidNotReceiveWithAnyArgs().Read(default!, default!, default, default!, default))
         {
         }
     }
@@ -131,10 +131,10 @@ public sealed class SqlExecutorServiceTests
                 { "f4", DateTime.Now.AddHours(1) },
             }
         };
-        _dqlReader.Read(default!, default, default, default).ReturnsForAnyArgs(readResults.ToAsyncEnumerable());
+        _dqlReader.Read(default!, default!, default!, default, default).ReturnsForAnyArgs(readResults.ToAsyncEnumerable());
 
         // Act
-        await foreach (var _ in _sut.Execute(default!, config, record, default))
+        await foreach (var _ in _sut.Execute(default!, default!, config, record, default))
         {
         }
 
@@ -156,7 +156,7 @@ public sealed class SqlExecutorServiceTests
         var record = new PluginRecord(new Dictionary<string, object> { { "f1", 1 }, { "f2", "data" } });
 
         // Act
-        await foreach (var _ in _sut.Execute(default!, config, record, default))
+        await foreach (var _ in _sut.Execute(default!, default!, config, record, default))
         {
         }
 

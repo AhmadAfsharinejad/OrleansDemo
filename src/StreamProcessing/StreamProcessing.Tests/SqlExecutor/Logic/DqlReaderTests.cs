@@ -21,65 +21,61 @@ namespace StreamProcessing.Tests.SqlExecutor.Logic;
 public sealed class DqlReaderTests
 {
     private readonly IDqlReader _sut;
-    private readonly IParameterCommandCreator _commandCreator;
+    private readonly ICommandFiller _commandFiller;
 
     public DqlReaderTests()
     {
-        _commandCreator = Substitute.For<IParameterCommandCreator>();
-        _sut = new DqlReader(_commandCreator);
+        _commandFiller = Substitute.For<ICommandFiller>();
+        _sut = new DqlReader(_commandFiller);
     }
 
     [Fact]
     public async Task Create_ShouldCallCommandCreator_WhenAll()
     {
         // Arrange
-        var connection = new OdbcConnection();
+        var connection = new StreamDbConnection(new OdbcConnection());
+        var command = Substitute.For<IStreamDbCommand>();
         var dqlCommand = GetDqlCommand();
         var record = new Dictionary<string, object> { { "f1", 1 }, { "f2", "data" } };
 
         // Act
-        await foreach (var _ in _sut.Read(connection, dqlCommand, record, default))
+        await foreach (var _ in _sut.Read(connection, command, dqlCommand, record, default))
         {
         }
 
         // Assert
-        _commandCreator.Received(1).Create(connection, dqlCommand.CommandText, dqlCommand.ParameterFileds, record);
+        _commandFiller.Received(1).Fill(connection, command, dqlCommand.CommandText, dqlCommand.ParameterFileds, record);
     }
 
     [Fact]
     public async Task Create_ShouldCallExecuteReader_WhenAll()
     {
         // Arrange
-        var connection = new OdbcConnection();
+        var connection = new StreamDbConnection(new OdbcConnection());
+        var command = Substitute.For<IStreamDbCommand>();
         var dqlCommand = GetDqlCommand();
         var record = new Dictionary<string, object> { { "f1", 1 }, { "f2", "data" } };
-
-        var command = Substitute.For<IDbCommand>();
-        _commandCreator.Create(default!, default!, default, default).ReturnsForAnyArgs(command);
 
         var reader = Substitute.For<IDataReader>();
         command.ExecuteReader().Returns(reader);
 
         // Act
-        await foreach (var _ in _sut.Read(connection, dqlCommand, record, default))
+        await foreach (var _ in _sut.Read(connection, command, dqlCommand, record, default))
         {
         }
 
         // Assert
         command.Received(1).ExecuteReader();
-        command.Received(1).Dispose();
     }
 
     [Fact]
     public async Task Create_ShouldReadResult_WhenDataReaderHasValue()
     {
         // Arrange
-        var connection = new OdbcConnection();
+        var connection = new StreamDbConnection(new OdbcConnection());
+        var command = Substitute.For<IStreamDbCommand>();
         var dqlCommand = GetDqlCommand();
         var record = new Dictionary<string, object> { { "f1", 1 }, { "f2", "data" } };
-
-        var command = Substitute.For<IDbCommand>();
-        _commandCreator.Create(default!, default!, default, default).ReturnsForAnyArgs(command);
 
         var reader = Substitute.For<IDataReader>();
         command.ExecuteReader().Returns(reader);
@@ -87,7 +83,7 @@ public sealed class DqlReaderTests
         reader.Read().Returns(true, false);
 
         // Act
-        await foreach (var _ in _sut.Read(connection, dqlCommand, record, default))
+        await foreach (var _ in _sut.Read(connection, command, dqlCommand, record, default))
         {
         }
 
@@ -100,12 +96,10 @@ public sealed class DqlReaderTests
     public async Task Create_ShouldReturnResult_WhenRead()
     {
         // Arrange
-        var connection = new OdbcConnection();
+        var connection = new StreamDbConnection(new OdbcConnection());
+        var command = Substitute.For<IStreamDbCommand>();
         var dqlCommand = GetDqlCommand();
         var record = new Dictionary<string, object> { { "f1", 1 }, { "f2", "data" } };
-
-        var command = Substitute.For<IDbCommand>();
-        _commandCreator.Create(default!, default!, default, default).ReturnsForAnyArgs(command);
 
         var reader = Substitute.For<IDataReader>();
         command.ExecuteReader().Returns(reader);
@@ -122,7 +116,7 @@ public sealed class DqlReaderTests
         };
 
         // Act
-        var actual = _sut.Read(connection, dqlCommand, record, default);
+        var actual = _sut.Read(connection, command, dqlCommand, record, default);
 
         // Assert
         var index = 0;
@@ -139,7 +133,8 @@ public sealed class DqlReaderTests
     public async Task Create_ShouldThrowException_WhenDbColumnIsNotExist()
     {
         // Arrange
-        var connection = new OdbcConnection();
+        var connection = new StreamDbConnection(new OdbcConnection());
+        var command = Substitute.For<IStreamDbCommand>();
         var dqlCommand = new DqlCommand
         {
             CommandText = "command",
@@ -152,9 +147,6 @@ public sealed class DqlReaderTests
         };
         var record = new Dictionary<string, object> { { "f1", 1 }, { "f2", "data" } };
 
-        var command = Substitute.For<IDbCommand>();
-        _commandCreator.Create(default!, default!, default, default).ReturnsForAnyArgs(command);
-
         var reader = Substitute.For<IDataReader>();
         command.ExecuteReader().Returns(reader);
 
@@ -166,7 +158,7 @@ public sealed class DqlReaderTests
         // Act
         var act = async () =>
         {
-            await foreach (var _ in _sut.Read(connection, dqlCommand, record, default))
+            await foreach (var _ in _sut.Read(connection, command, dqlCommand, record, default))
             {
             }
         };

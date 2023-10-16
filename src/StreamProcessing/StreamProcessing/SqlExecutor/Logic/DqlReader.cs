@@ -1,5 +1,4 @@
 ﻿using System.Data;
-using System.Data.Odbc;
 using System.Runtime.CompilerServices;
 using StreamProcessing.SqlExecutor.Domain;
 using StreamProcessing.SqlExecutor.Interfaces;
@@ -8,19 +7,21 @@ namespace StreamProcessing.SqlExecutor.Logic;
 
 internal sealed class DqlReader : IDqlReader
 {
-    private readonly IParameterCommandCreator _commandCreator;
+    private readonly ICommandFiller _commandFiller;
 
-    public DqlReader(IParameterCommandCreator commandCreator)
+    public DqlReader(ICommandFiller commandFiller)
     {
-        _commandCreator = commandCreator ?? throw new ArgumentNullException(nameof(commandCreator));
+        _commandFiller = commandFiller ?? throw new ArgumentNullException(nameof(commandFiller));
     }
 
     public async IAsyncEnumerable<IReadOnlyDictionary<string, object>> 
-        Read(OdbcConnection connection, DqlCommand dqlCommand, 
+        Read(IStreamDbConnection connection,
+            IStreamDbCommand command,
+            DqlCommand dqlCommand, 
             IReadOnlyDictionary<string, object>? record, 
             [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        using var command = _commandCreator.Create(connection, dqlCommand.CommandText, dqlCommand.ParameterFileds, record);
+        _commandFiller.Fill(connection, command, dqlCommand.CommandText, dqlCommand.ParameterFileds, record);
         using var reader = command.ExecuteReader();
         while (reader.Read())
         {
