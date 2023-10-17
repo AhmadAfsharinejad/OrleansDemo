@@ -18,7 +18,7 @@ internal sealed class DmlExecutor : IDmlExecutor
         IReadOnlyDictionary<string, object>? record,
         CancellationToken cancellationToken)
     {
-        _commandFiller.Fill(connection, command, dmlCommand.CommandText, dmlCommand.ParameterFileds, record);
+        _commandFiller.Fill(connection, command, dmlCommand.CommandText, dmlCommand.ParameterFields, record);
         command.ExecuteNonQuery();
         //Note:ExecuteNonQueryAsync call ExecuteNonQuery and return Task.FromResult!
         await Task.CompletedTask;

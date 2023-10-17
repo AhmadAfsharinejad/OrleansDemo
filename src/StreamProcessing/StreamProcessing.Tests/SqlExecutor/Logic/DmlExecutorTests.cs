@@ -35,7 +35,7 @@ public sealed class DmlExecutorTests
         await _sut.Execute(connection, command, dmlCommand, record, default);
 
         // Assert
-        _commandFiller.Received(1).Fill(connection, command, dmlCommand.CommandText, dmlCommand.ParameterFileds, record);
+        _commandFiller.Received(1).Fill(connection, command, dmlCommand.CommandText, dmlCommand.ParameterFields, record);
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public sealed class DmlExecutorTests
         return new DmlCommand
         {
             CommandText = "command",
-            ParameterFileds = new[] { "c1", "c2" }
+            ParameterFields = new[] { "c1", "c2" }
         };
     }
 }

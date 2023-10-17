@@ -44,7 +44,7 @@ public sealed class DqlReaderTests
         }
 
         // Assert
-        _commandFiller.Received(1).Fill(connection, command, dqlCommand.CommandText, dqlCommand.ParameterFileds, record);
+        _commandFiller.Received(1).Fill(connection, command, dqlCommand.CommandText, dqlCommand.ParameterFields, record);
     }
 
     [Fact]
@@ -138,8 +138,8 @@ public sealed class DqlReaderTests
         var dqlCommand = new DqlCommand
         {
             CommandText = "command",
-            ParameterFileds = new[] { "f1", "f2" },
-            OutputFileds = new[]
+            ParameterFields = new[] { "f1", "f2" },
+            OutputFields = new[]
             {
                 new DqlField("c1", new StreamField("f3", FieldType.Integer)),
                 new DqlField("c4", new StreamField("f4", FieldType.Text))
@@ -172,8 +172,8 @@ public sealed class DqlReaderTests
         return new DqlCommand
         {
             CommandText = "command",
-            ParameterFileds = new[] { "f1", "f2" },
-            OutputFileds = new[]
+            ParameterFields = new[] { "f1", "f2" },
+            OutputFields = new[]
             {
                 new DqlField("c1", new StreamField("f3", FieldType.Integer)),
                 new DqlField("c2", new StreamField("f4", FieldType.Text))

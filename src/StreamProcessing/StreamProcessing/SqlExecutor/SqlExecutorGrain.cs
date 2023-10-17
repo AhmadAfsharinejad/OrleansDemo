@@ -132,7 +132,7 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
     private void InitOutputFieldTypes(IReadOnlyDictionary<string, FieldType>? inputFieldTypesByName, SqlExecutorConfig config)
     {
         _outputFieldTypes = _fieldTypeJoiner.Join(inputFieldTypesByName,
-            config.DqlCommand?.OutputFileds.Select(x => x.Field),
+            config.DqlCommand?.OutputFields.Select(x => x.Field),
             config.JoinType);
     }
 }

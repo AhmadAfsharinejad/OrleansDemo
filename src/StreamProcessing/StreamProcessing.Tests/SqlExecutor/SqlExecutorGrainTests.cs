@@ -65,7 +65,7 @@ public sealed class SqlExecutorGrainTests
         {
             DqlCommand = new DqlCommand
             {
-                OutputFileds = new []
+                OutputFields = new []
                 {
                     new DqlField("bDb", new StreamField("b", FieldType.Bool)),
                     new DqlField("tDb", new StreamField("t", FieldType.Text)),
@@ -81,7 +81,7 @@ public sealed class SqlExecutorGrainTests
 
         // Assert
         _fieldTypeJoiner.Received(1).Join(pluginContext.InputFieldTypes, 
-            Arg.Is<IEnumerable<StreamField>>(x => x.SequenceEqual(pluginConfig.DqlCommand!.Value.OutputFileds.Select(z => z.Field))),
+            Arg.Is<IEnumerable<StreamField>>(x => x.SequenceEqual(pluginConfig.DqlCommand!.Value.OutputFields.Select(z => z.Field))),
             pluginConfig.JoinType);
         
         _fieldTypeJoiner.ReceivedWithAnyArgs(1).Join(default, default, default);

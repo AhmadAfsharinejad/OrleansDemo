@@ -13,7 +13,8 @@ internal sealed class CommandFiller : ICommandFiller
         IReadOnlyDictionary<string, object>? record)
     {
         command.CommandText = commandText;
-
+        command.Parameters.Clear();
+        
         if (parameterFields is null) return;
 
         foreach (var parameter in parameterFields)

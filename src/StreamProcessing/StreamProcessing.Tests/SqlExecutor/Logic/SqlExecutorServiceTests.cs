@@ -180,8 +180,8 @@ public sealed class SqlExecutorServiceTests
         return new DqlCommand
         {
             CommandText = "DqlCommand",
-            ParameterFileds = new[] { "f2" },
-            OutputFileds = new[]
+            ParameterFields = new[] { "f2" },
+            OutputFields = new[]
             {
                 new DqlField("c1", new StreamField("f3", FieldType.Float)),
                 new DqlField("c2", new StreamField("f4", FieldType.DateTime))
@@ -196,12 +196,12 @@ public sealed class SqlExecutorServiceTests
             new DmlCommand
             {
                 CommandText = "DmlCommand1",
-                ParameterFileds = new[] { "f1", "f2" }
+                ParameterFields = new[] { "f1", "f2" }
             },
             new DmlCommand
             {
                 CommandText = "DmlCommand2",
-                ParameterFileds = new[] { "f1" }
+                ParameterFields = new[] { "f1" }
             }
         };
     }

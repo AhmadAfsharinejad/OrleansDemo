@@ -15,5 +15,6 @@ internal sealed class SqlExecutorDiAdder: IServiceAdder
         collection.AddSingleton<IDmlExecutor, DmlExecutor>();
         collection.AddSingleton<IDqlReader, DqlReader>();
         collection.AddSingleton<ISqlExecutorService, SqlExecutorService>();
+        collection.AddSingleton<IConnectionFactory, ConnectionFactory>();
     }
 }
