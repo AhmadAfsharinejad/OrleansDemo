@@ -196,8 +196,8 @@ internal sealed class StartingHost : BackgroundService
             DqlCommand = new DqlCommand
             {
                 CommandText = @"SELECT now() as dateTime, ? as age",
-                ParameterFileds = new[] { "Age" },
-                OutputFileds = new[]
+                ParameterFields = new[] { "Age" },
+                OutputFields = new[]
                 {
                     new DqlField("dateTime", new StreamField("db_dateTime", FieldType.DateTime)),
                     new DqlField("age", new StreamField("db_age", FieldType.Integer))
