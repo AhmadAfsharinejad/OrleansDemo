@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Odbc.Sample", "Odbc.Sample\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamProcessing.Tests", "StreamProcessing.Tests\StreamProcessing.Tests.csproj", "{5FB0C07F-E11E-472E-85FC-B442D1B757D7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiListener.Sample", "ApiListener.Sample\ApiListener.Sample.csproj", "{2F35B286-418E-4559-AAAE-AC558908AC8F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,8 +28,13 @@ Global
 		{5FB0C07F-E11E-472E-85FC-B442D1B757D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5FB0C07F-E11E-472E-85FC-B442D1B757D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5FB0C07F-E11E-472E-85FC-B442D1B757D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F35B286-418E-4559-AAAE-AC558908AC8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F35B286-418E-4559-AAAE-AC558908AC8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F35B286-418E-4559-AAAE-AC558908AC8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F35B286-418E-4559-AAAE-AC558908AC8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B324D090-2393-4D8F-8252-C015131FB992} = {A38FB319-D897-4E6F-BAB5-76A718AFB5BC}
+		{2F35B286-418E-4559-AAAE-AC558908AC8F} = {A38FB319-D897-4E6F-BAB5-76A718AFB5BC}
 	EndGlobalSection
 EndGlobal
