@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StreamProcessing.Tests", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiListener.Sample", "ApiListener.Sample\ApiListener.Sample.csproj", "{2F35B286-418E-4559-AAAE-AC558908AC8F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redis.Sample", "Redis.Sample\Redis.Sample.csproj", "{96E5A83A-8B48-4D47-A8AC-6998E6F62B62}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,9 +34,14 @@ Global
 		{2F35B286-418E-4559-AAAE-AC558908AC8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2F35B286-418E-4559-AAAE-AC558908AC8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2F35B286-418E-4559-AAAE-AC558908AC8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96E5A83A-8B48-4D47-A8AC-6998E6F62B62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96E5A83A-8B48-4D47-A8AC-6998E6F62B62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96E5A83A-8B48-4D47-A8AC-6998E6F62B62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96E5A83A-8B48-4D47-A8AC-6998E6F62B62}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{B324D090-2393-4D8F-8252-C015131FB992} = {A38FB319-D897-4E6F-BAB5-76A718AFB5BC}
 		{2F35B286-418E-4559-AAAE-AC558908AC8F} = {A38FB319-D897-4E6F-BAB5-76A718AFB5BC}
+		{96E5A83A-8B48-4D47-A8AC-6998E6F62B62} = {A38FB319-D897-4E6F-BAB5-76A718AFB5BC}
 	EndGlobalSection
 EndGlobal

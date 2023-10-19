@@ -29,9 +29,18 @@ internal sealed class StartingHost : BackgroundService
 
         //await RandomWithGrain();
         //await Random();
-        await RunScenario();
+        //await RunScenario();
+        await TestGrainService();
 
         Console.WriteLine($"Finished {DateTime.Now}");
+    }
+
+    private async Task TestGrainService()
+    {
+        var generator = _grainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+        // generator.Test();
+        // generator.Test();
+            //await generator.Compute(default, null, default!);
     }
 
     private async Task RandomWithGrain()
