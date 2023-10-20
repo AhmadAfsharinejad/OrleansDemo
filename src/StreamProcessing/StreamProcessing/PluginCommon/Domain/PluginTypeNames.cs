@@ -4,9 +4,9 @@ public enum PluginTypeNames
 {
     Random,
     Filter,
-    Aggregator,
     DummyOutput,
     SqlExecutor,
     HttpListener,
-    HttpResponse
+    HttpResponse,
+    Rest
 }

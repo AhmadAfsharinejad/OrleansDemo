@@ -15,5 +15,6 @@ public class PluginDiAdder : IServiceAdder
         collection.AddTransient<IPluginOutputCaller, PluginOutputCaller>();
         collection.AddSingleton<IRecordJoiner, RecordJoiner>();
         collection.AddSingleton<IFieldTypeJoiner, FieldTypeJoiner>();
+        collection.AddSingleton<IStringReplacer, StringReplacer>();
     }
 }

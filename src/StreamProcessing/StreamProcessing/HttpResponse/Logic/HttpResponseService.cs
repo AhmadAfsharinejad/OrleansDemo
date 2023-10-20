@@ -2,11 +2,19 @@
 using StreamProcessing.HttpResponse.Domain;
 using StreamProcessing.HttpResponse.Interfaces;
 using StreamProcessing.PluginCommon.Domain;
+using StreamProcessing.PluginCommon.Interfaces;
 
 namespace StreamProcessing.HttpResponse.Logic;
 
 internal sealed class HttpResponseService : IHttpResponseService
 {
+    private readonly IStringReplacer _stringReplacer;
+
+    public HttpResponseService(IStringReplacer stringReplacer)
+    {
+        _stringReplacer = stringReplacer ?? throw new ArgumentNullException(nameof(stringReplacer));
+    }
+    
     public HttpResponseTuple GetResponse(HttpResponseConfig config, PluginRecord record)
     {
         return new HttpResponseTuple(GetContent(config, record), GetHeaders(config, record));
@@ -37,31 +45,15 @@ internal sealed class HttpResponseService : IHttpResponseService
         return headers;
     }
 
-    private static byte[]? GetContent(HttpResponseConfig config, PluginRecord record)
+    private byte[]? GetContent(HttpResponseConfig config, PluginRecord record)
     {
         byte[]? content = null;
-        var stringContent = GetStringContent(config, record);
+        var stringContent = _stringReplacer.Replace(config.Content, config.ContentFields, record);
         if (!string.IsNullOrWhiteSpace(stringContent))
         {
             content = Encoding.UTF8.GetBytes(stringContent);
         }
 
         return content;
-    }
-
-    private static string? GetStringContent(HttpResponseConfig config, PluginRecord record)
-    {
-        if (string.IsNullOrWhiteSpace(config.Content)) return null;
-
-        if (config.ContentFields is null || config.ContentFields.Count == 0) return config.Content;
-
-        var args = new object[config.ContentFields.Count];
-        var index = 0;
-        foreach (var contentField in config.ContentFields)
-        {
-            args[index++] = record.Record[contentField];
-        }
-
-        return string.Format(config.Content, args);
     }
 }

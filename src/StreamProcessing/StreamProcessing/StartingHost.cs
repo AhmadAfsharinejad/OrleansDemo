@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using System.Diagnostics;
+using Microsoft.Extensions.Hosting;
 using StreamProcessing.DummyOutput.Domain;
 using StreamProcessing.Filter.Domain;
 using StreamProcessing.Filter.Interfaces;
@@ -6,6 +7,7 @@ using StreamProcessing.HttpListener.Domain;
 using StreamProcessing.HttpResponse.Domain;
 using StreamProcessing.PluginCommon.Domain;
 using StreamProcessing.RandomGenerator.Domain;
+using StreamProcessing.Rest.Domain;
 using StreamProcessing.Scenario.Domain;
 using StreamProcessing.Scenario.Interfaces;
 using StreamProcessing.SqlExecutor.Domain;
@@ -25,25 +27,17 @@ internal sealed class StartingHost : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        var sw = new Stopwatch();
+        sw.Start();
         Console.WriteLine($"Start {DateTime.Now}");
 
         //await RunScenario();
-        await RunScenario2();
-        //await TestGrainService();
+        //await RunScenario2();
+        await RunScenario3();
 
-        Console.WriteLine($"Finished {DateTime.Now}");
+        sw.Stop();
+        Console.WriteLine($"Finished {DateTime.Now} {sw.Elapsed.TotalMilliseconds}");
     }
-
-    private async Task TestGrainService()
-    {
-        var generator = _grainFactory.GetGrain<IFilterGrain>(Guid.Empty);
-        //generator.Test();
-        var generator2 = _grainFactory.GetGrain<IFilterGrain>(Guid.Empty);
-        //generator2.Test();
-        //await generator.Compute(default, null, default!);
-        int i = 0;
-    }
-
 
     private async Task RunScenario()
     {
@@ -122,6 +116,52 @@ internal sealed class StartingHost : BackgroundService
             Relations = relations
         };
     }
+    
+    private async Task RunScenario3()
+    {
+        var config = GetScenarioConfig3();
+        await _scenarioRunner.Run(config);
+    }
+
+    private static ScenarioConfig GetScenarioConfig3()
+    {
+        var configs = new List<PluginConfig>();
+        var relations = new List<LinkConfig>();
+
+        var randomPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig2());
+        configs.Add(randomPluginConfig);
+
+        var restConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.Rest), Guid.NewGuid(), GetRestConfig());
+        configs.Add(restConfig);
+        
+        var dummyOutputPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.DummyOutput), Guid.NewGuid(), GetDummyOutputConfig());
+        configs.Add(dummyOutputPluginConfig);
+
+        relations.Add(new LinkConfig(randomPluginConfig.Id, restConfig.Id));
+        relations.Add(new LinkConfig(restConfig.Id, dummyOutputPluginConfig.Id));
+
+        return new ScenarioConfig
+        {
+            Id = Guid.NewGuid(),
+            Configs = configs,
+            Relations = relations
+        };
+    }
+
+    private static RestConfig GetRestConfig()
+    {
+        return new RestConfig
+        {
+            JoinType = RecordJoinType.Append,
+            Uri = "http://localhost:5089/Math/Add",
+            HttpMethod = HttpMethod.Get,
+            QueryStrings = new[] { new QueryStringField("b", "num") },
+            StaticQueryStrings = new[] { new KeyValuePair<string, string>("a", "1") },
+            RequestStaticHeaders = new[] { new KeyValuePair<string, string>("Accept", "application/json") },
+            ResponseContentFieldName = "response",
+            StatusFieldName = "status",
+        };
+    }
 
     private static HttpResponseConfig GetHttpResponseConfig()
     {
@@ -137,7 +177,7 @@ internal sealed class StartingHost : BackgroundService
     {
         return new HttpListenerConfig
         {
-            Url = "http://localhost:1380/index/",
+            Uri = "http://localhost:1380/index/",
             Headers = new[] { new HeaderField("id", "fieldId") }
         };
     }
@@ -154,6 +194,19 @@ internal sealed class StartingHost : BackgroundService
                 new(new("DateTime", FieldType.DateTime), RandomType.DateTime),
             },
             Count = 1000000,
+            BatchCount = 10
+        };
+    }
+    
+    private static RandomGeneratorConfig GetRandomGeneratorConfig2()
+    {
+        return new RandomGeneratorConfig
+        {
+            Columns = new List<RandomColumn>
+            {
+                new(new("num", FieldType.Integer), RandomType.Number)
+            },
+            Count = 100000,
             BatchCount = 10
         };
     }
@@ -207,7 +260,7 @@ internal sealed class StartingHost : BackgroundService
         return new DummyOutputConfig
         {
             IsWriteEnabled = true,
-            RecordCountInterval = 100000,
+            RecordCountInterval = 10000,
         };
     }
 }

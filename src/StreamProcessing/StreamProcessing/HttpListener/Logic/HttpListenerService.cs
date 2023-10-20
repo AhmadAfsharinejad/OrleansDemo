@@ -12,7 +12,7 @@ internal sealed class HttpListenerService : IHttpListenerService
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var listener = new System.Net.HttpListener();
-        listener.Prefixes.Add(config.Url);
+        listener.Prefixes.Add(config.Uri);
         listener.Start();
 
         while (listener.IsListening 

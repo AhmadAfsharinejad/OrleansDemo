@@ -134,11 +134,11 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
     private async Task<SqlExecutorConfig> Init(PluginExecutionContext pluginContext, CancellationToken cancellationToken)
     {
         var config = await _pluginConfigFetcher.GetConfig(pluginContext.ScenarioId, pluginContext.PluginId);
-        await Init(pluginContext.InputFieldTypes, config, cancellationToken);
+        await Init(pluginContext, config, cancellationToken);
         return config;
     }
 
-    private async Task Init(IReadOnlyDictionary<string, FieldType>? inputFieldTypesByName,
+    private async Task Init(PluginExecutionContext pluginContext,
         SqlExecutorConfig config,
         CancellationToken cancellationToken)
     {
@@ -148,7 +148,7 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
 
         _command = _connection!.CreateStreamDbCommand();
 
-        InitOutputFieldTypes(inputFieldTypesByName, config);
+        InitOutputFieldTypes(pluginContext, config);
 
         _hasBeenInit = true;
     }
@@ -159,9 +159,9 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
         await _connection.OpenAsync(cancellationToken);
     }
 
-    private void InitOutputFieldTypes(IReadOnlyDictionary<string, FieldType>? inputFieldTypesByName, SqlExecutorConfig config)
+    private void InitOutputFieldTypes(PluginExecutionContext pluginContext, SqlExecutorConfig config)
     {
-        _outputFieldTypes = _fieldTypeJoiner.Join(inputFieldTypesByName,
+        _outputFieldTypes = _fieldTypeJoiner.Join(pluginContext.InputFieldTypes,
             config.DqlCommand?.OutputFields.Select(x => x.Field),
             config.JoinType);
     }
