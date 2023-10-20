@@ -39,7 +39,7 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
     public override Task OnActivateAsync(CancellationToken cancellationToken)
     {
         Console.WriteLine($"SqlExecutorGrain Activated  {this.GetGrainId()}");
-        
+
         return base.OnActivateAsync(cancellationToken);
     }
 
@@ -68,32 +68,50 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
     }
 
     [ReadOnly]
-    public async Task Compute([Immutable] PluginExecutionContext pluginContext,
-        [Immutable] PluginRecords? pluginRecords,
+    public async Task Start([Immutable] PluginExecutionContext pluginContext,
         GrainCancellationToken cancellationToken)
     {
-        var config = await _pluginConfigFetcher.GetConfig(pluginContext.ScenarioId, pluginContext.PluginId);
-        await Init(pluginContext.InputFieldTypes, config, cancellationToken.CancellationToken);
-        var outPluginContext = pluginContext with { InputFieldTypes = _outputFieldTypes };
+        var config = await Init(pluginContext, cancellationToken.CancellationToken);
 
-        List<PluginRecord> records;
+        var records = await Execute(null, config, cancellationToken.CancellationToken);
+        await _pluginOutputCaller.CallOutputs(GetOutPluginContext(pluginContext), records, cancellationToken);
+    }
 
-        if (pluginRecords is null)
+    [ReadOnly]
+    public async Task Compute([Immutable] PluginExecutionContext pluginContext,
+        [Immutable] PluginRecords pluginRecords,
+        GrainCancellationToken cancellationToken)
+    {
+        var config = await Init(pluginContext, cancellationToken.CancellationToken);
+
+        var records = new List<PluginRecord>();
+
+        foreach (var pluginRecord in pluginRecords.Records)
         {
-            records = await Execute(null, config, cancellationToken.CancellationToken);
+            var result = await Execute(pluginRecord, config, cancellationToken.CancellationToken);
+            records.AddRange(result);
+        }
+
+        await _pluginOutputCaller.CallOutputs(GetOutPluginContext(pluginContext), records, cancellationToken);
+    }
+
+    [ReadOnly]
+    public async Task Compute([Immutable] PluginExecutionContext pluginContext,
+        [Immutable] PluginRecord pluginRecord,
+        GrainCancellationToken cancellationToken)
+    {
+        var config = await Init(pluginContext, cancellationToken.CancellationToken);
+
+        var records = await Execute(pluginRecord, config, cancellationToken.CancellationToken);
+
+        if (records.Count > 1)
+        {
+            await _pluginOutputCaller.CallOutputs(GetOutPluginContext(pluginContext), records, cancellationToken);
         }
         else
         {
-            records = new List<PluginRecord>();
-
-            foreach (var pluginRecord in pluginRecords.Value.Records)
-            {
-                var result = await Execute(pluginRecord, config, cancellationToken.CancellationToken);
-                records.AddRange(result);
-            }
+            await _pluginOutputCaller.CallOutputs(GetOutPluginContext(pluginContext), records.First(), cancellationToken);
         }
-
-        await _pluginOutputCaller.CallOutputs(outPluginContext, records, cancellationToken);
     }
 
     private async Task<List<PluginRecord>> Execute(PluginRecord? record, SqlExecutorConfig config, CancellationToken cancellationToken)
@@ -108,6 +126,18 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
         return records;
     }
 
+    private PluginExecutionContext GetOutPluginContext(PluginExecutionContext pluginContext)
+    {
+        return pluginContext with { InputFieldTypes = _outputFieldTypes };
+    }
+
+    private async Task<SqlExecutorConfig> Init(PluginExecutionContext pluginContext, CancellationToken cancellationToken)
+    {
+        var config = await _pluginConfigFetcher.GetConfig(pluginContext.ScenarioId, pluginContext.PluginId);
+        await Init(pluginContext.InputFieldTypes, config, cancellationToken);
+        return config;
+    }
+
     private async Task Init(IReadOnlyDictionary<string, FieldType>? inputFieldTypesByName,
         SqlExecutorConfig config,
         CancellationToken cancellationToken)
@@ -117,7 +147,7 @@ internal sealed class SqlExecutorGrain : PluginGrain, ISqlExecutorGrain
         await InitConnection(config, cancellationToken);
 
         _command = _connection!.CreateStreamDbCommand();
-        
+
         InitOutputFieldTypes(inputFieldTypesByName, config);
 
         _hasBeenInit = true;

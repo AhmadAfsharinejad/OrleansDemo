@@ -26,19 +26,18 @@ internal class ScenarioRunner : IScenarioRunner
         var scenarioGrain = _grainFactory.GetGrain<IScenarioGrain>(config.Id);
         await scenarioGrain.AddScenario(config);
 
-        foreach (var plugin in FindStartingPlugins(config))
+        foreach (var plugin in FindSourcePlugins(config))
         {
-            var grain = _pluginGrainFactory.GetOrCreate(plugin.PluginTypeId, plugin.Id);
-            var runTask = grain.Compute(
-                new PluginExecutionContext(config.Id, plugin.Id, null),
-                null, tcs.Token);
+            var grain = _pluginGrainFactory.GetOrCreateSourcePlugin(plugin.PluginTypeId, plugin.Id);
+            var runTask = grain.Start(
+                new PluginExecutionContext(config.Id, plugin.Id, null), tcs.Token);
             runTasks.Add(runTask);
         }
 
         await Task.WhenAll(runTasks);
     }
 
-    private static IEnumerable<PluginConfig> FindStartingPlugins(ScenarioConfig config)
+    private static IEnumerable<PluginConfig> FindSourcePlugins(ScenarioConfig config)
     {
         var destinationIds = config.Relations.Select(x => x.DestinationId).ToHashSet();
         return config.Configs.Where(x => !destinationIds.Contains(x.Id));

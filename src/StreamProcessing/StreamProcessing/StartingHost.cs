@@ -1,14 +1,14 @@
 ﻿using Microsoft.Extensions.Hosting;
-using Orleans.Concurrency;
 using StreamProcessing.DummyOutput.Domain;
 using StreamProcessing.Filter.Domain;
 using StreamProcessing.Filter.Interfaces;
+using StreamProcessing.HttpListener.Domain;
+using StreamProcessing.HttpResponse.Domain;
 using StreamProcessing.PluginCommon.Domain;
 using StreamProcessing.RandomGenerator.Domain;
 using StreamProcessing.Scenario.Domain;
 using StreamProcessing.Scenario.Interfaces;
 using StreamProcessing.SqlExecutor.Domain;
-using StreamProcessing.TestGrains.Interfaces;
 
 namespace StreamProcessing;
 
@@ -27,10 +27,9 @@ internal sealed class StartingHost : BackgroundService
     {
         Console.WriteLine($"Start {DateTime.Now}");
 
-        //await RandomWithGrain();
-        //await Random();
         //await RunScenario();
-        await TestGrainService();
+        await RunScenario2();
+        //await TestGrainService();
 
         Console.WriteLine($"Finished {DateTime.Now}");
     }
@@ -38,72 +37,13 @@ internal sealed class StartingHost : BackgroundService
     private async Task TestGrainService()
     {
         var generator = _grainFactory.GetGrain<IFilterGrain>(Guid.Empty);
-        // generator.Test();
-        // generator.Test();
-            //await generator.Compute(default, null, default!);
+        //generator.Test();
+        var generator2 = _grainFactory.GetGrain<IFilterGrain>(Guid.Empty);
+        //generator2.Test();
+        //await generator.Compute(default, null, default!);
+        int i = 0;
     }
 
-    private async Task RandomWithGrain()
-    {
-        var generator = _grainFactory.GetGrain<IIntRandomGeneratorGrain>(0);
-        await generator.Compute();
-    }
-
-    private async Task Random()
-    {
-        var t1 = RunPassAwayGrain(1);
-        //var t2 = RunPassAwayGrain(2);
-        //var t3 = RunPassAwayGrain(3);
-
-        await Task.WhenAll(t1); //, t2, t3);
-    }
-
-    private async Task RunPassAwayGrain(int grainId)
-    {
-        var grain = _grainFactory.GetGrain<IPassAwayGrain>(grainId);
-
-#pragma warning disable CS4014
-        Task.Run(async () =>
-#pragma warning restore CS4014
-        {
-            if (grainId != 1) return;
-
-            await Task.Delay(TimeSpan.FromSeconds(1));
-
-            var passAwayGrain = _grainFactory.GetGrain<IPassAwayGrain>(grainId);
-            await passAwayGrain.SayHello();
-        });
-
-        var batchCount = 10;
-        var items = new int[batchCount];
-        int index = 0;
-
-        for (int i = 1; i < 10000000; i++)
-        {
-            items[index++] = i;
-
-            if (index == batchCount)
-            {
-                try
-                {
-                    await grain.Compute(items.AsImmutable());
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-
-                items = new int[batchCount];
-                index = 0;
-            }
-
-            // if (i % 1000 == 0)
-            // {
-            //     await Task.WhenAll(tasks);
-            //     tasks.Clear();
-            // }
-        }
-    }
 
     private async Task RunScenario()
     {
@@ -130,10 +70,10 @@ internal sealed class StartingHost : BackgroundService
 
         var filterPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.Filter), Guid.NewGuid(), GetFilterConfig());
         configs.Add(filterPluginConfig);
-        
+
         var filterPluginConfig2 = new PluginConfig(new PluginTypeId(PluginTypeNames.Filter), Guid.NewGuid(), GetFilterConfig());
         configs.Add(filterPluginConfig2);
-        
+
         var sqlExecutorConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.SqlExecutor), Guid.NewGuid(), GetSqlExecutorConfig());
         configs.Add(sqlExecutorConfig);
 
@@ -153,6 +93,52 @@ internal sealed class StartingHost : BackgroundService
             Id = Guid.NewGuid(),
             Configs = configs,
             Relations = relations
+        };
+    }
+
+    private async Task RunScenario2()
+    {
+        var config = GetScenarioConfig2();
+        await _scenarioRunner.Run(config);
+    }
+
+    private static ScenarioConfig GetScenarioConfig2()
+    {
+        var configs = new List<PluginConfig>();
+        var relations = new List<LinkConfig>();
+
+        var httpPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.HttpListener), Guid.NewGuid(), GetHttpListenerConfig());
+        configs.Add(httpPluginConfig);
+
+        var HttpResponseConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.HttpResponse), Guid.NewGuid(), GetHttpResponseConfig());
+        configs.Add(HttpResponseConfig);
+
+        relations.Add(new LinkConfig(httpPluginConfig.Id, HttpResponseConfig.Id));
+
+        return new ScenarioConfig
+        {
+            Id = Guid.NewGuid(),
+            Configs = configs,
+            Relations = relations
+        };
+    }
+
+    private static HttpResponseConfig GetHttpResponseConfig()
+    {
+        return new HttpResponseConfig
+        {
+            Content = "By",
+            StaticHeaders = new[] { new KeyValuePair<string, string>("id1", "1") },
+            Headers = new[] { new HeaderField("resId", "fieldId") }
+        };
+    }
+
+    private static HttpListenerConfig GetHttpListenerConfig()
+    {
+        return new HttpListenerConfig
+        {
+            Url = "http://localhost:1380/index/",
+            Headers = new[] { new HeaderField("id", "fieldId") }
         };
     }
 

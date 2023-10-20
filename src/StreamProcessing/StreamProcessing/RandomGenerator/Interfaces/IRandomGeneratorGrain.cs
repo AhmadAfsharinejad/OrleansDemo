@@ -2,7 +2,7 @@
 
 namespace StreamProcessing.RandomGenerator.Interfaces;
 
-internal interface IRandomGeneratorGrain : IPluginGrain
+internal interface IRandomGeneratorGrain : ISourcePluginGrain
 {
     
 }

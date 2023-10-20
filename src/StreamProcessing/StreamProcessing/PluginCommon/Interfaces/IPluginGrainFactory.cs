@@ -4,5 +4,7 @@ namespace StreamProcessing.PluginCommon.Interfaces;
 
 internal interface IPluginGrainFactory
 {
-    IPluginGrain GetOrCreate(PluginTypeId pluginTypeId, Guid pluginId);
+    IPluginGrain GetOrCreatePlugin(PluginTypeId pluginTypeId, Guid grainId);
+    ISourcePluginGrain GetOrCreateSourcePlugin(PluginTypeId pluginTypeId, Guid grainId);
+    ISourcePluginGrain GetOrCreateSourcePlugin(Type pluginType, Guid grainId);
 }

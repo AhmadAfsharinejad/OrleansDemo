@@ -30,14 +30,34 @@ internal sealed class PluginOutputCaller : IPluginOutputCaller
         foreach (var output in outputs)
         {
             var outPluginContext = pluginContext with { PluginId = output.PluginId };
-            var pluginGrain = _pluginGrainFactory.GetOrCreate(output.PluginTypeId, output.PluginId);
+            var pluginGrain = _pluginGrainFactory.GetOrCreatePlugin(output.PluginTypeId, output.PluginId);
             var task = pluginGrain.Compute(outPluginContext, outputRecords, cancellationToken);
             tasks.Add(task);
         }
 
         await Task.WhenAll(tasks);
     }
-    
+
+    public async Task CallOutputs(PluginExecutionContext pluginContext,
+        PluginRecord record, 
+        GrainCancellationToken cancellationToken)
+    {
+        var outputs = await GetOutpus(pluginContext.ScenarioId, pluginContext.PluginId);
+        if (outputs.Count == 0) return;
+        
+        var tasks = new List<Task>(outputs.Count);
+
+        foreach (var output in outputs)
+        {
+            var outPluginContext = pluginContext with { PluginId = output.PluginId };
+            var pluginGrain = _pluginGrainFactory.GetOrCreatePlugin(output.PluginTypeId, output.PluginId);
+            var task = pluginGrain.Compute(outPluginContext, record, cancellationToken);
+            tasks.Add(task);
+        }
+
+        await Task.WhenAll(tasks);
+    }
+
     private async Task<IReadOnlyCollection<PluginTypeWithId>> GetOutpus(Guid scenarioId, Guid pluginId)
     {
         if (_outputs is not null) return _outputs;

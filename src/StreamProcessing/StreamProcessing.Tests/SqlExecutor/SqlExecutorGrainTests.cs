@@ -48,8 +48,8 @@ public sealed class SqlExecutorGrainTests
 
         // Act
         using var tcs = new GrainCancellationTokenSource();
-        await _sut.Compute(pluginContext, null, tcs.Token);
-        await _sut.Compute(pluginContext, null, tcs.Token);
+        await _sut.Compute(pluginContext, new PluginRecords(Array.Empty<PluginRecord>()), tcs.Token);
+        await _sut.Compute(pluginContext, new PluginRecords(Array.Empty<PluginRecord>()), tcs.Token);
 
         // Assert
         _connectionFactory.Received(1).Create(pluginConfig.ConnectionString);
@@ -76,8 +76,8 @@ public sealed class SqlExecutorGrainTests
 
         // Act
         using var tcs = new GrainCancellationTokenSource();
-        await _sut.Compute(pluginContext, null, tcs.Token);
-        await _sut.Compute(pluginContext, null, tcs.Token);
+        await _sut.Compute(pluginContext, new PluginRecords(Array.Empty<PluginRecord>()), tcs.Token);
+        await _sut.Compute(pluginContext, new PluginRecords(Array.Empty<PluginRecord>()), tcs.Token);
 
         // Assert
         _fieldTypeJoiner.Received(1).Join(pluginContext.InputFieldTypes, 
@@ -97,7 +97,7 @@ public sealed class SqlExecutorGrainTests
 
         // Act
         using var tcs = new GrainCancellationTokenSource();
-        await _sut.Compute(pluginContext, null, tcs.Token);
+        await _sut.Compute(pluginContext, new PluginRecords(Array.Empty<PluginRecord>()), tcs.Token);
 
         // Assert
         await foreach (var _ in _sqlExecutorService.Received(1)
@@ -148,7 +148,7 @@ public sealed class SqlExecutorGrainTests
         await _sut.Compute(pluginContext, records, tcs.Token);
 
         // Assert
-        await _pluginOutputCaller.ReceivedWithAnyArgs(1).CallOutputs(default, default!, default!);
+        await _pluginOutputCaller.ReceivedWithAnyArgs(1).CallOutputs(default, new List<PluginRecord>(), default!);
     }
 
     [Fact]
@@ -161,10 +161,10 @@ public sealed class SqlExecutorGrainTests
 
         // Act
         using var tcs = new GrainCancellationTokenSource();
-        await _sut.Compute(pluginContext, null, tcs.Token);
+        await _sut.Compute(pluginContext, new PluginRecords(Array.Empty<PluginRecord>()), tcs.Token);
 
         // Assert
-        await _pluginOutputCaller.ReceivedWithAnyArgs(1).CallOutputs(default, default!, default!);
+        await _pluginOutputCaller.ReceivedWithAnyArgs(1).CallOutputs(default, new List<PluginRecord>(), default!);
     }
     
     private static PluginRecords GetRecords()

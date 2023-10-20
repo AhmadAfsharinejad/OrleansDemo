@@ -1,14 +1,19 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 
+string Url = "http://localhost:1380/index/";
 HttpListener _listener;
 
 Console.WriteLine("Start");
 
-Task.Run(Run);
-Task.Run(Start);
+await Run();
+
+//Task.Run(Run);
+//Task.Run(Start);
 
 Console.WriteLine("Finish");
 
@@ -19,17 +24,25 @@ async Task Run()
     Console.WriteLine($"{DateTime.Now}");
     
     var client = new HttpClient();
+    var sw = new Stopwatch();
    
     for (int i = 0; i < 100000; i++)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, "http://localhost:1280/index/");
-        request.Headers.Add("id", "123");
+        var request = new HttpRequestMessage(HttpMethod.Get, Url);
+        request.Headers.Add("id", i.ToString());
         var content = new StringContent("myContent", null, "text/plain");
         request.Content = content;
         
+        sw.Start();
         var response = await client.SendAsync(request);
-        response.EnsureSuccessStatusCode();
+        sw.Stop();
+        if (response.Headers.GetValues("resId").First() != i.ToString())
+        {
+            throw new Exception();
+        }
     }
+
+    Console.WriteLine(sw.Elapsed.TotalMilliseconds);
     
     Console.WriteLine($"{DateTime.Now}");
 }
@@ -37,23 +50,19 @@ async Task Run()
 void Start()
 {
     _listener = new HttpListener();
-    _listener.Prefixes.Add("http://localhost:1280/index/");
+    _listener.Prefixes.Add(Url);
     _listener.Start();
-    Listen();
-}
-
-void Stop()
-{
-    _listener.Stop();
-}
-
-void Listen()
-{
+   
     while (_listener.IsListening)
     {
         var context = _listener.GetContext();
         Handle(context);
     }
+}
+
+void Stop()
+{
+    _listener.Stop();
 }
 
 async Task Handle(HttpListenerContext context)

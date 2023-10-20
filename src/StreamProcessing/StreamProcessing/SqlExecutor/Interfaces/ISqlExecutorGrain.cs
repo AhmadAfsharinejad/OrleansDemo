@@ -2,6 +2,6 @@
 
 namespace StreamProcessing.SqlExecutor.Interfaces;
 
-internal interface ISqlExecutorGrain : IPluginGrain
+internal interface ISqlExecutorGrain : IPluginGrain, ISourcePluginGrain
 {
 }

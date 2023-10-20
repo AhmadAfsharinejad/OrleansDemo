@@ -33,18 +33,14 @@ internal sealed class FilterGrain : PluginGrain, IFilterGrain
     
     [ReadOnly]
     public async Task Compute([Immutable] PluginExecutionContext pluginContext, 
-        [Immutable] PluginRecords? pluginRecords, 
+        [Immutable] PluginRecords pluginRecords, 
         GrainCancellationToken cancellationToken)
     {
-        if(pluginRecords is null) return;
-
-        if (pluginContext.InputFieldTypes is null) throw new NoNullAllowedException("'InputFieldTypes' can't be null.");
+        var config = await GetConfig(pluginContext);
         
-        var config = await _pluginConfigFetcher.GetConfig(pluginContext.ScenarioId, pluginContext.PluginId);
+        var records = new List<PluginRecord>(pluginRecords.Records.Count);
 
-        var records = new List<PluginRecord>(pluginRecords.Value.Records.Count);
-
-        foreach (var pluginRecord in pluginRecords.Value.Records)
+        foreach (var pluginRecord in pluginRecords.Records)
         {
             if (_filterService.Satisfy(pluginRecord, config.Constraint, pluginContext.InputFieldTypes!))
             {
@@ -53,5 +49,25 @@ internal sealed class FilterGrain : PluginGrain, IFilterGrain
         }
 
         await _pluginOutputCaller.CallOutputs(pluginContext, records, cancellationToken);
+    }
+
+    [ReadOnly]
+    public async Task Compute(PluginExecutionContext pluginContext, 
+        PluginRecord pluginRecord, 
+        GrainCancellationToken cancellationToken)
+    {
+        var config = await GetConfig(pluginContext);
+
+        if (_filterService.Satisfy(pluginRecord, config.Constraint, pluginContext.InputFieldTypes!))
+        {
+            await _pluginOutputCaller.CallOutputs(pluginContext, pluginRecord, cancellationToken);
+        }
+    }
+
+    private async Task<FilterConfig> GetConfig(PluginExecutionContext pluginContext)
+    {
+        if (pluginContext.InputFieldTypes is null) throw new NoNullAllowedException("'InputFieldTypes' can't be null.");
+
+        return await _pluginConfigFetcher.GetConfig(pluginContext.ScenarioId, pluginContext.PluginId);
     }
 }

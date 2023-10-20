@@ -2,6 +2,6 @@
 
 namespace StreamProcessing.DummyOutput.Interfaces;
 
-internal interface IDummyOutputGrain: IPluginGrain
+internal interface IDummyOutputGrain : IPluginGrain
 {
 }

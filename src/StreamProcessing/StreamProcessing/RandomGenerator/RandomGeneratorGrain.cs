@@ -33,8 +33,7 @@ internal sealed class RandomGeneratorGrain : PluginGrain, IRandomGeneratorGrain
     }
 
     [ReadOnly]
-    public async Task Compute([Immutable] PluginExecutionContext pluginContext,
-        [Immutable] PluginRecords? pluginRecords,
+    public async Task Start([Immutable]PluginExecutionContext pluginContext,
         GrainCancellationToken cancellationToken)
     {
         var config = await _pluginConfigFetcher.GetConfig(pluginContext.ScenarioId, pluginContext.PluginId);

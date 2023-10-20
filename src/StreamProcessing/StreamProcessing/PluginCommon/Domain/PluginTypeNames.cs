@@ -6,5 +6,7 @@ public enum PluginTypeNames
     Filter,
     Aggregator,
     DummyOutput,
-    SqlExecutor
+    SqlExecutor,
+    HttpListener,
+    HttpResponse
 }

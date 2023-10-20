@@ -28,22 +28,40 @@ internal sealed class DummyOutputGrain : PluginGrain, IDummyOutputGrain
 
     [ReadOnly]
     public async Task Compute([Immutable] PluginExecutionContext pluginContext,
-        [Immutable] PluginRecords? pluginRecords,
+        [Immutable] PluginRecords pluginRecords,
         GrainCancellationToken cancellationToken)
     {
-        if (pluginRecords is null) return;
-
         var config = await _pluginConfigFetcher.GetConfig(pluginContext.ScenarioId, pluginContext.PluginId);
 
         if (!config.IsWriteEnabled) return;
 
-        _counter += pluginRecords.Value.Records.Count;
-        _totalCounter += pluginRecords.Value.Records.Count;
+        _counter += pluginRecords.Records.Count;
+        _totalCounter += pluginRecords.Records.Count;
 
         if (_counter > config.RecordCountInterval)
         {
             Console.WriteLine(_totalCounter);
-            Console.WriteLine(string.Join(",", pluginRecords.Value.Records.Last().Record.Select(x => $"{x.Key}:{x.Value}")));
+            Console.WriteLine(pluginRecords.Records.Last());
+            _counter = 0;
+        }
+    }
+    
+    [ReadOnly]
+    public async Task Compute([Immutable] PluginExecutionContext pluginContext,
+        [Immutable] PluginRecord pluginRecord,
+        GrainCancellationToken cancellationToken)
+    {
+        var config = await _pluginConfigFetcher.GetConfig(pluginContext.ScenarioId, pluginContext.PluginId);
+
+        if (!config.IsWriteEnabled) return;
+
+        _counter += 1;
+        _totalCounter += 1;
+
+        if (_counter > config.RecordCountInterval)
+        {
+            Console.WriteLine(_totalCounter);
+            Console.WriteLine(pluginRecord);
             _counter = 0;
         }
     }
