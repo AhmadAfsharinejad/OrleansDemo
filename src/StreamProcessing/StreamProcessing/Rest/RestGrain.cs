@@ -13,19 +13,19 @@ internal sealed class RestGrain : Grain, IRestGrain
     private readonly IPluginOutputCaller _pluginOutputCaller;
     private readonly IPluginConfigFetcher<RestConfig> _pluginConfigFetcher;
     private readonly IRestService _restService;
-    private readonly IFieldTypeJoiner _fieldTypeJoiner;
+    private readonly IRestOutputFieldTypeGetter _restOutputFieldTypeGetter;
     private HttpClient? _httpClient;
     private IReadOnlyDictionary<string, FieldType>? _outputFieldTypes;
 
     public RestGrain(IPluginOutputCaller pluginOutputCaller,
         IPluginConfigFetcher<RestConfig> pluginConfigFetcher,
         IRestService restService,
-        IFieldTypeJoiner fieldTypeJoiner)
+        IRestOutputFieldTypeGetter restOutputFieldTypeGetter)
     {
         _pluginOutputCaller = pluginOutputCaller ?? throw new ArgumentNullException(nameof(pluginOutputCaller));
         _pluginConfigFetcher = pluginConfigFetcher ?? throw new ArgumentNullException(nameof(pluginConfigFetcher));
         _restService = restService ?? throw new ArgumentNullException(nameof(restService));
-        _fieldTypeJoiner = fieldTypeJoiner ?? throw new ArgumentNullException(nameof(fieldTypeJoiner));
+        _restOutputFieldTypeGetter = restOutputFieldTypeGetter ?? throw new ArgumentNullException(nameof(restOutputFieldTypeGetter));
     }
     
     public override Task OnActivateAsync(CancellationToken cancellationToken)
@@ -97,33 +97,8 @@ internal sealed class RestGrain : Grain, IRestGrain
             return;
         }
 
-        InitOutputFieldTypes(pluginContext, config);
+        _outputFieldTypes = _restOutputFieldTypeGetter.GetOutputs(pluginContext, config);
 
         _httpClient = new HttpClient();
-    }
-
-    private void InitOutputFieldTypes(PluginExecutionContext pluginContext, RestConfig config)
-    {
-        var outputs = new List<StreamField>();
-
-        if (config.ResponseHeaders is not null)
-        {
-            foreach (var requestHeader in config.ResponseHeaders)
-            {
-                outputs.Add(new StreamField(requestHeader.FieldName, FieldType.Text));
-            }
-        }
-
-        if (!string.IsNullOrWhiteSpace(config.StatusFieldName))
-        {
-            outputs.Add(new StreamField(config.StatusFieldName, FieldType.Integer));
-        }
-        
-        if (!string.IsNullOrWhiteSpace(config.ResponseContentFieldName))
-        {
-            outputs.Add(new StreamField(config.ResponseContentFieldName, FieldType.Text));
-        }
-
-        _outputFieldTypes = _fieldTypeJoiner.Join(pluginContext.InputFieldTypes, outputs, config.JoinType);
     }
 }

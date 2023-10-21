@@ -10,15 +10,17 @@ namespace StreamProcessing.Rest.Logic;
 internal sealed class RestRequestCreator : IRestRequestCreator
 {
     private readonly IStringReplacer _stringReplacer;
+    private readonly IUriReplacer _uriReplacer;
 
-    public RestRequestCreator(IStringReplacer stringReplacer)
+    public RestRequestCreator(IStringReplacer stringReplacer, IUriReplacer uriReplacer)
     {
         _stringReplacer = stringReplacer ?? throw new ArgumentNullException(nameof(stringReplacer));
+        _uriReplacer = uriReplacer ?? throw new ArgumentNullException(nameof(uriReplacer));
     }
 
     public HttpRequestMessage Create(RestConfig config, PluginRecord pluginRecord, CancellationToken cancellationToken)
     {
-        HttpRequestMessage request = new(config.HttpMethod, GetUri(config, pluginRecord));
+        HttpRequestMessage request = new(config.HttpMethod, _uriReplacer.GetUri(config, pluginRecord));
 
         AddHeaders(request, config, pluginRecord);
 
@@ -34,31 +36,6 @@ internal sealed class RestRequestCreator : IRestRequestCreator
         if (string.IsNullOrWhiteSpace(content)) return;
 
         request.Content = new StringContent(content, Encoding.UTF8);
-    }
-
-    private static string GetUri(RestConfig config, PluginRecord pluginRecord)
-    {
-        var builder = new UriBuilder(config.Uri);
-        var query = HttpUtility.ParseQueryString(builder.Query);
-
-        if (config.QueryStrings is not null)
-        {
-            foreach (var QueryString in config.QueryStrings)
-            {
-                query[QueryString.NameInQueryString] = pluginRecord.Record[QueryString.FieldName].ToString();
-            }
-        }
-
-        if (config.StaticQueryStrings is not null)
-        {
-            foreach (var QueryString in config.StaticQueryStrings)
-            {
-                query[QueryString.Key] = QueryString.Value;
-            }
-        }
-
-        builder.Query = query.ToString();
-        return builder.ToString();
     }
 
     private static void AddHeaders(HttpRequestMessage request, RestConfig config, PluginRecord pluginRecord)

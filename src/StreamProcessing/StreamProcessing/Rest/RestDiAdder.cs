@@ -14,5 +14,7 @@ internal sealed class RestDiAdder : IServiceAdder
         collection.AddSingleton<IRestService, RestService>();
         collection.AddSingleton<IRestRequestCreator, RestRequestCreator>();
         collection.AddSingleton<IRestResponseConverter, RestResponseConverter>();
+        collection.AddSingleton<IUriReplacer, UriReplacer>();
+        collection.AddSingleton<IRestOutputFieldTypeGetter, RestOutputFieldTypeGetter>();
     }
 }
