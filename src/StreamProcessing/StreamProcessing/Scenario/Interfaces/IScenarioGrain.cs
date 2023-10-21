@@ -7,8 +7,12 @@ namespace StreamProcessing.Scenario.Interfaces;
 internal interface IScenarioGrain : IGrainWithGuidKey
 {
     Task AddScenario(ScenarioConfig config);
+    
+    [AlwaysInterleave]
     [ReadOnly]
-    Task<IPluginConfig> GetPluginConfig(Guid plugingId);
+    Task<IPluginConfig> GetPluginConfig(Guid pluginId);
+
+    [AlwaysInterleave]
     [ReadOnly]
-    Task<IReadOnlyCollection<PluginTypeWithId>> GetOutputTypes(Guid plugingId);
+    Task<IReadOnlyCollection<PluginTypeWithId>> GetOutputTypes(Guid pluginId);
 }

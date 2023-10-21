@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Orleans.Runtime;
 using StreamProcessing.Silo.Interfaces;
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace StreamProcessing.Silo;
 
