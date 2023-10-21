@@ -46,10 +46,10 @@ internal sealed class HttpListenerService : IHttpListenerService
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(config.ConetentFieldName))
+        if (!string.IsNullOrWhiteSpace(config.ContentFieldName))
         {
             using var reader = new StreamReader(request.InputStream, request.ContentEncoding);
-            record[config.ConetentFieldName] = await reader.ReadToEndAsync();
+            record[config.ContentFieldName] = await reader.ReadToEndAsync();
         }
 
         return new PluginRecord(record);

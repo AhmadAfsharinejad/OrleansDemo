@@ -12,5 +12,6 @@ internal sealed  class HttpListenerDiAdder : IServiceAdder
     {
         collection.AddSingleton<IPluginGrainIntroducer, HttpListenerGrainIntroducer>();
         collection.AddSingleton<IHttpListenerService, HttpListenerService>();
+        collection.AddSingleton<IHttpListenerOutputFieldTypeGetter, HttpListenerOutputFieldTypeGetter>();
     }
 }
