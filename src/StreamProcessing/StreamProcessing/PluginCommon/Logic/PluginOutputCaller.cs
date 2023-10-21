@@ -20,7 +20,7 @@ internal sealed class PluginOutputCaller : IPluginOutputCaller
         List<PluginRecord> records, 
         GrainCancellationToken cancellationToken)
     {
-        var outputs = await GetOutpus(pluginContext.ScenarioId, pluginContext.PluginId);
+        var outputs = await GetOutputs(pluginContext.ScenarioId, pluginContext.PluginId);
         if (outputs.Count == 0) return;
 
         var outputRecords = new PluginRecords { Records = records };
@@ -42,7 +42,7 @@ internal sealed class PluginOutputCaller : IPluginOutputCaller
         PluginRecord record, 
         GrainCancellationToken cancellationToken)
     {
-        var outputs = await GetOutpus(pluginContext.ScenarioId, pluginContext.PluginId);
+        var outputs = await GetOutputs(pluginContext.ScenarioId, pluginContext.PluginId);
         if (outputs.Count == 0) return;
         
         var tasks = new List<Task>(outputs.Count);
@@ -58,7 +58,7 @@ internal sealed class PluginOutputCaller : IPluginOutputCaller
         await Task.WhenAll(tasks);
     }
 
-    private async Task<IReadOnlyCollection<PluginTypeWithId>> GetOutpus(Guid scenarioId, Guid pluginId)
+    private async Task<IReadOnlyCollection<PluginTypeWithId>> GetOutputs(Guid scenarioId, Guid pluginId)
     {
         if (_outputs is not null) return _outputs;
         

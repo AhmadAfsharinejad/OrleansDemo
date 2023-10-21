@@ -88,7 +88,7 @@ public sealed class SqlExecutorGrainTests
     }
 
     [Fact]
-    public async Task Compute_ShouldCallSqlExecutorService_WhenInputIsNull()
+    public async Task Start_ShouldCallSqlExecutorService_WhenAll()
     {
         // Arrange
         var pluginContext = GetPluginContext();
@@ -97,7 +97,7 @@ public sealed class SqlExecutorGrainTests
 
         // Act
         using var tcs = new GrainCancellationTokenSource();
-        await _sut.Compute(pluginContext, new PluginRecords(Array.Empty<PluginRecord>()), tcs.Token);
+        await _sut.Start(pluginContext, tcs.Token);
 
         // Assert
         await foreach (var _ in _sqlExecutorService.Received(1)

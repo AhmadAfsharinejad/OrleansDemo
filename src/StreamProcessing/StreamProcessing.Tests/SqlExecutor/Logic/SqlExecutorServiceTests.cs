@@ -69,10 +69,7 @@ public sealed class SqlExecutorServiceTests
     }
 
     public static IEnumerable<object[]> EmptyDmlCommand =>
-        new List<object[]>
-        {
-            new object[] { Array.Empty<DmlCommand>() },
-        };
+        new List<object[]> { new object[] { Array.Empty<DmlCommand>() } };
 
     [Fact]
     public async Task Execute_ShouldCallDqlExecutor_WhenDqlCommandIsNotNull()

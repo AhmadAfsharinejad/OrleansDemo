@@ -1,9 +1,11 @@
-﻿using StreamProcessing.PluginCommon.Interfaces;
+﻿using StreamProcessing.PluginCommon.Domain;
+using StreamProcessing.PluginCommon.Interfaces;
 using StreamProcessing.Scenario.Interfaces;
 
 namespace StreamProcessing.PluginCommon.Logic;
 
 internal sealed class PluginConfigFetcher<TConfig> : IPluginConfigFetcher<TConfig>
+where TConfig : IPluginConfig
 {
     private TConfig? _config;
     private readonly IGrainFactory _grainFactory;
