@@ -24,7 +24,7 @@ internal sealed class LocalGrainIntroducerService : GrainService, ILocalGrainInt
     public override async Task Start()
     {
         var siloGrain = _grainFactory.GetGrain<ILocalSiloGrain>(_siloGrainId);
-        await siloGrain.SubscribeToMasterGrain();
+        await siloGrain.SubscribeToCoordinator();
         
         await base.Start();
     }
@@ -32,7 +32,7 @@ internal sealed class LocalGrainIntroducerService : GrainService, ILocalGrainInt
     public override async Task Stop()
     {
         var siloGrain = _grainFactory.GetGrain<ILocalSiloGrain>(_siloGrainId);
-        await siloGrain.UnSubscribeToMasterGrain();
+        await siloGrain.UnSubscribeToCoordinator();
 
         await base.Stop();
     }

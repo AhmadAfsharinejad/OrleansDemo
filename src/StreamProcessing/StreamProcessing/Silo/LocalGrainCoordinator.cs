@@ -5,14 +5,12 @@ namespace StreamProcessing.Silo;
 
 internal sealed class LocalGrainCoordinator : Grain, ILocalGrainCoordinator
 {
-    private readonly IGrainFactory _grainFactory;
     private readonly IPersistentState<HashSet<Guid>> _state;
 
-    public LocalGrainCoordinator(IGrainFactory grainFactory,
+    public LocalGrainCoordinator(
         [PersistentState(stateName: "localGrainIds", storageName: SiloConsts.StorageName)]
         IPersistentState<HashSet<Guid>> state)
     {
-        _grainFactory = grainFactory ?? throw new ArgumentNullException(nameof(grainFactory));
         _state = state ?? throw new ArgumentNullException(nameof(state));
     }
 

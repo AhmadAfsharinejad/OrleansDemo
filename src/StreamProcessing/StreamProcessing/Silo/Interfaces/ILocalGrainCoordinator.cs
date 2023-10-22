@@ -2,7 +2,7 @@
 
 /// <summary>
 /// All Silo must introduce one grain (ILocalSiloGrain) to this this grain
-/// using introduced grain for runnig source plugins in each silo
+/// using introduced grain for running source plugins in each silo
 /// </summary>
 internal interface ILocalGrainCoordinator : IGrainWithGuidKey
 {

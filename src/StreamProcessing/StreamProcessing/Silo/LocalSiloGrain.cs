@@ -17,16 +17,16 @@ internal sealed class LocalSiloGrain : Grain, ILocalSiloGrain
         _pluginGrainFactory = pluginGrainFactory ?? throw new ArgumentNullException(nameof(pluginGrainFactory));
     }
     
-    public async Task SubscribeToMasterGrain()
+    public async Task SubscribeToCoordinator()
     {
-        var masterGrain = _grainFactory.GetGrain<ILocalGrainCoordinator>(SiloConsts.MasterGrainId);
-        await masterGrain.Subscribe(this.GetPrimaryKey());
+        var coordinatorGrain = _grainFactory.GetGrain<ILocalGrainCoordinator>(SiloConsts.CoordinatorGrainId);
+        await coordinatorGrain.Subscribe(this.GetPrimaryKey());
     }
 
-    public async Task UnSubscribeToMasterGrain()
+    public async Task UnSubscribeToCoordinator()
     {
-        var masterGrain = _grainFactory.GetGrain<ILocalGrainCoordinator>(SiloConsts.MasterGrainId);
-        await masterGrain.UnSubscribe(this.GetPrimaryKey());
+        var coordinatorGrain = _grainFactory.GetGrain<ILocalGrainCoordinator>(SiloConsts.CoordinatorGrainId);
+        await coordinatorGrain.UnSubscribe(this.GetPrimaryKey());
     }
 
     public async Task StartPlugin([Immutable] Type startingPluginType, 

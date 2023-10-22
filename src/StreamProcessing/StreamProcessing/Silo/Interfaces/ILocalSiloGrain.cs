@@ -7,8 +7,8 @@ namespace StreamProcessing.Silo.Interfaces;
 /// </summary>
 internal interface ILocalSiloGrain : IGrainWithGuidKey
 {
-    Task SubscribeToMasterGrain();
-    Task UnSubscribeToMasterGrain();
+    Task SubscribeToCoordinator();
+    Task UnSubscribeToCoordinator();
 
     Task StartPlugin([Immutable] Type startingPluginType,
         [Immutable] PluginExecutionContext pluginContext,

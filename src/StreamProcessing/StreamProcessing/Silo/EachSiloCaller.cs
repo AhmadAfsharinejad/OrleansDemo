@@ -16,7 +16,7 @@ internal sealed class EachSiloCaller : IEachSiloCaller
         [Immutable] PluginExecutionContext pluginContext,
         GrainCancellationToken cancellationToken)
     {
-        var coordinator = _grainFactory.GetGrain<ILocalGrainCoordinator>(SiloConsts.MasterGrainId);
+        var coordinator = _grainFactory.GetGrain<ILocalGrainCoordinator>(SiloConsts.CoordinatorGrainId);
         var ids = await coordinator.GetAllLocalSiloGrainIds();
         
         foreach (var id in ids)
