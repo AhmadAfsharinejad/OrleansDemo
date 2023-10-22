@@ -3,7 +3,7 @@ using StreamProcessing.PluginCommon.Domain;
 
 namespace StreamProcessing.Filter.Logic;
 
-internal sealed class TimeSpanFilterService: IGraterOrLessFilterService
+internal sealed class TimeSpanFilterService: IGreaterOrLessFilterService
 {
     public FieldType FieldType => FieldType.TimeSpan;
     

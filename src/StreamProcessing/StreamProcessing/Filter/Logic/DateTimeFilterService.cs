@@ -3,7 +3,7 @@ using StreamProcessing.PluginCommon.Domain;
 
 namespace StreamProcessing.Filter.Logic;
 
-internal sealed class DateTimeFilterService : IGraterOrLessFilterService
+internal sealed class DateTimeFilterService : IGreaterOrLessFilterService
 {
     public FieldType FieldType => FieldType.DateTime;
     

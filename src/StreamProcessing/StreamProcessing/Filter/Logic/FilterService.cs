@@ -61,7 +61,7 @@ internal sealed class FilterService : IFilterService
         
         if (fieldConstraint.Operator == ConstraintOperators.Less)
         {
-            if (service is not IGraterOrLessFilterService lessFilterService)
+            if (service is not IGreaterOrLessFilterService lessFilterService)
             {
                 throw new Exception($"Type '{fieldType}' doesn't support 'less' operator.");
             }
@@ -71,7 +71,7 @@ internal sealed class FilterService : IFilterService
         
         if (fieldConstraint.Operator == ConstraintOperators.Greater)
         {
-            if (service is not IGraterOrLessFilterService greaterFilterService)
+            if (service is not IGreaterOrLessFilterService greaterFilterService)
             {
                 throw new Exception($"Type '{fieldType}' doesn't support 'greater' operator.");
             }

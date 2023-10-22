@@ -3,7 +3,7 @@ using StreamProcessing.PluginCommon.Domain;
 
 namespace StreamProcessing.Filter.Logic;
 
-internal abstract class DecimalFilterService : IGraterOrLessFilterService
+internal abstract class DecimalFilterService : IGreaterOrLessFilterService
 {
     public abstract FieldType FieldType { get; }
 
