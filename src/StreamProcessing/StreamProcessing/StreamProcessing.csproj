@@ -15,12 +15,7 @@
         <PackageReference Include="StronglyTypedId" Version="1.0.0-beta06" />
         <PackageReference Include="Bogus" Version="34.0.2" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" />
+        <PackageReference Include="System.Data.Odbc" Version="7.0.0" />
     </ItemGroup>
     
-    <ItemGroup>
-      <Reference Include="System.Data.Odbc">
-        <HintPath>..\Odbc.Sample\bin\Debug\net7.0\runtimes\win\lib\net7.0\System.Data.Odbc.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-
 </Project>
