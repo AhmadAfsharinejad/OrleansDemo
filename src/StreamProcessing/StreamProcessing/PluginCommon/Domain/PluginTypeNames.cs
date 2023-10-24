@@ -8,5 +8,6 @@ public enum PluginTypeNames
     SqlExecutor,
     HttpListener,
     HttpResponse,
-    Rest
+    Rest,
+    Map
 }

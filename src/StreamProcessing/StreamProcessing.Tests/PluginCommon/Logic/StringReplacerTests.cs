@@ -90,8 +90,6 @@ public class StringReplacerTests
         var contentFields = new List<string> { "f1" };
         var record = new PluginRecord(new Dictionary<string, object> { { "f1", 1 }, { "f2", 1 } });
 
-        var expected = "Template 1";
-        
         //Act
         var act = () => _sut.Replace(contentTemplate, contentFields, record);
 

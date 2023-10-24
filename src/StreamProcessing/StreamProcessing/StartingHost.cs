@@ -5,23 +5,23 @@ using StreamProcessing.Filter.Domain;
 using StreamProcessing.Filter.Interfaces;
 using StreamProcessing.HttpListener.Domain;
 using StreamProcessing.HttpResponse.Domain;
+using StreamProcessing.Map.Domain;
 using StreamProcessing.PluginCommon.Domain;
 using StreamProcessing.RandomGenerator.Domain;
 using StreamProcessing.Rest.Domain;
 using StreamProcessing.Scenario.Domain;
 using StreamProcessing.Scenario.Interfaces;
 using StreamProcessing.SqlExecutor.Domain;
+// ReSharper disable UnusedMember.Local
 
 namespace StreamProcessing;
 
 internal sealed class StartingHost : BackgroundService
 {
-    private readonly IGrainFactory _grainFactory;
     private readonly IScenarioRunner _scenarioRunner;
 
-    public StartingHost(IGrainFactory grainFactory, IScenarioRunner scenarioRunner)
+    public StartingHost(IScenarioRunner scenarioRunner)
     {
-        _grainFactory = grainFactory ?? throw new ArgumentNullException(nameof(grainFactory));
         _scenarioRunner = scenarioRunner ?? throw new ArgumentNullException(nameof(scenarioRunner));
     }
 
@@ -33,7 +33,8 @@ internal sealed class StartingHost : BackgroundService
 
         //await RunScenario();
         //await RunScenario2();
-        await RunScenario3();
+        //await RunScenario3();
+        await RunScenario4();
 
         sw.Stop();
         Console.WriteLine($"Finished {DateTime.Now} {sw.Elapsed.TotalMilliseconds}");
@@ -104,10 +105,10 @@ internal sealed class StartingHost : BackgroundService
         var httpPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.HttpListener), Guid.NewGuid(), GetHttpListenerConfig());
         configs.Add(httpPluginConfig);
 
-        var HttpResponseConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.HttpResponse), Guid.NewGuid(), GetHttpResponseConfig());
-        configs.Add(HttpResponseConfig);
+        var httpResponseConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.HttpResponse), Guid.NewGuid(), GetHttpResponseConfig());
+        configs.Add(httpResponseConfig);
 
-        relations.Add(new LinkConfig(httpPluginConfig.Id, HttpResponseConfig.Id));
+        relations.Add(new LinkConfig(httpPluginConfig.Id, httpResponseConfig.Id));
 
         return new ScenarioConfig
         {
@@ -116,7 +117,7 @@ internal sealed class StartingHost : BackgroundService
             Relations = relations
         };
     }
-    
+
     private async Task RunScenario3()
     {
         var config = GetScenarioConfig3();
@@ -133,12 +134,56 @@ internal sealed class StartingHost : BackgroundService
 
         var restConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.Rest), Guid.NewGuid(), GetRestConfig());
         configs.Add(restConfig);
-        
+
         var dummyOutputPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.DummyOutput), Guid.NewGuid(), GetDummyOutputConfig());
         configs.Add(dummyOutputPluginConfig);
 
         relations.Add(new LinkConfig(randomPluginConfig.Id, restConfig.Id));
         relations.Add(new LinkConfig(restConfig.Id, dummyOutputPluginConfig.Id));
+
+        return new ScenarioConfig
+        {
+            Id = Guid.NewGuid(),
+            Configs = configs,
+            Relations = relations
+        };
+    }
+
+
+    private async Task RunScenario4()
+    {
+        var config = GetScenarioConfig4();
+        await _scenarioRunner.Run(config);
+    }
+
+    private static ScenarioConfig GetScenarioConfig4()
+    {
+        var configs = new List<PluginConfig>();
+        var relations = new List<LinkConfig>();
+
+        var randomPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
+        configs.Add(randomPluginConfig);
+        
+        var randomPluginConfig2 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
+        configs.Add(randomPluginConfig2);
+        
+        var randomPluginConfig3 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
+        configs.Add(randomPluginConfig3);
+        
+        var randomPluginConfig4 = new PluginConfig(new PluginTypeId(PluginTypeNames.Random), Guid.NewGuid(), GetRandomGeneratorConfig());
+        configs.Add(randomPluginConfig4);
+
+        var mapConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.Map), Guid.NewGuid(), GetMapConfig());
+        configs.Add(mapConfig);
+        
+        var dummyOutputPluginConfig = new PluginConfig(new PluginTypeId(PluginTypeNames.DummyOutput), Guid.NewGuid(), GetDummyOutputConfig());
+        configs.Add(dummyOutputPluginConfig);
+
+        relations.Add(new LinkConfig(randomPluginConfig.Id, mapConfig.Id));
+        relations.Add(new LinkConfig(randomPluginConfig2.Id, mapConfig.Id));
+        relations.Add(new LinkConfig(randomPluginConfig3.Id, mapConfig.Id));
+        relations.Add(new LinkConfig(randomPluginConfig4.Id, mapConfig.Id));
+        relations.Add(new LinkConfig(mapConfig.Id, dummyOutputPluginConfig.Id));
 
         return new ScenarioConfig
         {
@@ -191,13 +236,13 @@ internal sealed class StartingHost : BackgroundService
                 new(new("Name", FieldType.Text), RandomType.Name),
                 new(new("Age", FieldType.Integer), RandomType.Age),
                 new(new("LastName", FieldType.Text), RandomType.LastName),
-                new(new("DateTime", FieldType.DateTime), RandomType.DateTime),
+                new(new("DateTime", FieldType.DateTime), RandomType.DateTime)
             },
-            Count = 1000000,
+            Count = 1_000_000,
             BatchCount = 10
         };
     }
-    
+
     private static RandomGeneratorConfig GetRandomGeneratorConfig2()
     {
         return new RandomGeneratorConfig
@@ -260,7 +305,37 @@ internal sealed class StartingHost : BackgroundService
         return new DummyOutputConfig
         {
             IsWriteEnabled = true,
-            RecordCountInterval = 10000,
+            RecordCountInterval = 100_000
+        };
+    }
+
+    private static MapConfig GetMapConfig()
+    {
+        return new MapConfig
+        {
+            OutputColumns = new[]
+            {
+                new StreamField("Name", FieldType.Text),
+                new StreamField("Age", FieldType.Integer),
+                new StreamField("LastName", FieldType.Text),
+                new StreamField("FullName", FieldType.Text),
+                new StreamField("DateTime", FieldType.DateTime),
+                new StreamField("IsChild", FieldType.Bool)
+            },
+            FunctionName = "Map",
+            FullClassName = "MapNameSpace.MapClass",
+            Code = @"using System.Collections.Generic;
+namespace MapNameSpace;
+public class MapClass
+{
+    public static IReadOnlyDictionary<string, object> Map(IReadOnlyDictionary<string, object> input)
+    {
+        var output = new Dictionary<string, object>(input);
+        output[""FullName""] = input[""Name""].ToString() + "" ""+ input[""LastName""].ToString();
+        output[""IsChild""] = (int)input[""Age""] < 13;
+        return output;
+    }
+}"
         };
     }
 }

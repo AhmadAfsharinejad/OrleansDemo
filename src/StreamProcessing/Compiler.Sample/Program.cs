@@ -13,14 +13,17 @@ Console.WriteLine("Starting");
 
 
 var code = File.ReadAllText("Code.txt");
+var fullClassName = "Compiler.Sample.MapClass";
+var functionName = "Map";
 
 var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, optimizationLevel: OptimizationLevel.Release);
 
 var compilation = CSharpCompilation.Create(Guid.NewGuid().ToString())
     .WithOptions(compilationOptions)
     .AddReferences(MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
-        MetadataReference.CreateFromFile(typeof(DateTime).GetTypeInfo().Assembly.Location),
         MetadataReference.CreateFromFile(typeof(Dictionary<,>).GetTypeInfo().Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(DateTime).GetTypeInfo().Assembly.Location),
+        MetadataReference.CreateFromFile(typeof(Path).GetTypeInfo().Assembly.Location),
         MetadataReference.CreateFromFile(typeof(Enumerable).GetTypeInfo().Assembly.Location),
         MetadataReference.CreateFromFile(typeof(DynamicObject).GetTypeInfo().Assembly.Location))
     .AddSyntaxTrees(CSharpSyntaxTree.ParseText(code));
@@ -32,12 +35,12 @@ if (!compile.Success) throw new Exception("Compile Error.");
 memoryStream.Seek(0, SeekOrigin.Begin);
 var assembly = Assembly.Load(memoryStream.ToArray());
 
-var type = assembly.GetType("Compiler.Sample.MapClass");
-if (type is null) throw new Exception("Can't Find 'MapClass'.");
-var methodInfo = type.GetMethod("Map", BindingFlags.Public | BindingFlags.Static);
-if (methodInfo is null) throw new Exception("Can't Find 'Map' function.");
-var method = (Func<Dictionary<string, object>, Dictionary<string, object>>)
-    methodInfo.CreateDelegate(typeof(Func<Dictionary<string, object>, Dictionary<string, object>>));
+var type = assembly.GetType(fullClassName);
+if (type is null) throw new Exception($"Can't Find '{fullClassName}'.");
+var methodInfo = type.GetMethod(functionName, BindingFlags.Public | BindingFlags.Static);
+if (methodInfo is null) throw new Exception($"Can't Find '{functionName}' function.");
+var method = (Func<IReadOnlyDictionary<string, object>, IReadOnlyDictionary<string, object>>)
+    methodInfo.CreateDelegate(typeof(Func<IReadOnlyDictionary<string, object>, IReadOnlyDictionary<string, object>>));
 
 
 

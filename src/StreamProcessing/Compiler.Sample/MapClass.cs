@@ -3,12 +3,13 @@ using System.Collections.Generic;
 
 namespace Compiler.Sample;
 
-public  class MapClass
+public class MapClass
 {
-    public static Dictionary<string, object> Map(Dictionary<string, object> input)
+    public static IReadOnlyDictionary<string, object> Map(IReadOnlyDictionary<string, object> input)
     {
-        input["a"] = DateTime.Now;
-        input["b"] += "RND";
-        return input;
+        var output = new Dictionary<string, object>(input);
+        output["a"] = DateTime.Now;
+        output["b"] += "RND";
+        return output;
     }
 }

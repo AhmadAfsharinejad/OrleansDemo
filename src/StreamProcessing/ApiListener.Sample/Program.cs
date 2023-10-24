@@ -4,9 +4,12 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+// ReSharper disable UnusedVariable
+#pragma warning disable CS4014
+#pragma warning disable CS8321
 
-string Url = "http://localhost:1380/index/";
-HttpListener _listener;
+string url = "http://localhost:1380/index/";
+HttpListener listener;
 
 Console.WriteLine("Start");
 
@@ -28,7 +31,7 @@ async Task Run()
    
     for (int i = 0; i < 100000; i++)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, Url);
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Add("id", i.ToString());
         var content = new StringContent("myContent", null, "text/plain");
         request.Content = content;
@@ -49,20 +52,20 @@ async Task Run()
 
 void Start()
 {
-    _listener = new HttpListener();
-    _listener.Prefixes.Add(Url);
-    _listener.Start();
+    listener = new HttpListener();
+    listener.Prefixes.Add(url);
+    listener.Start();
    
-    while (_listener.IsListening)
+    while (listener.IsListening)
     {
-        var context = _listener.GetContext();
+        var context = listener.GetContext();
         Handle(context);
     }
 }
 
 void Stop()
 {
-    _listener.Stop();
+    listener.Stop();
 }
 
 async Task Handle(HttpListenerContext context)
