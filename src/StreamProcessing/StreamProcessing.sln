@@ -16,11 +16,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rest.Sample", "Rest.Sample\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Compiler.Sample", "Compiler.Sample\Compiler.Sample.csproj", "{149EDCA5-0D02-46B1-B7ED-A1B5D072E2F8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3E531CBD-F7C2-41C2-9EB9-7270A431F794}"
-	ProjectSection(SolutionItems) = preProject
-		StreamProcessing\runtimeconfig.template.json = StreamProcessing\runtimeconfig.template.json
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
